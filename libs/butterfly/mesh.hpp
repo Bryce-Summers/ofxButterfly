@@ -33,12 +33,13 @@ typedef std::map<Vertex, std::set<Edge> > VertexList;
 /* based on wikipedia article http://en.wikipedia.org/wiki/Polygon_mesh */
 class WingedEdge
 {
+public:
+  /* made these public for fromWingedEdge */
   FaceList faceList;
   EdgeListMap edgeListMap;
   VertexList vertexList;
   bool butterfly;
 
-public:
   WingedEdge() : butterfly(false) {}
 
   Vertex AddVertex(GLfloat x, GLfloat y, GLfloat z);
