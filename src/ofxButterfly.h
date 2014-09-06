@@ -10,6 +10,7 @@
 #ifndef OFXBUTTERFLY_H_
 #define OFXBUTTERFLY_H_
 
+#include "ofMesh.h"
 #include "vertex.hpp"
 #include "edge.hpp"
 
@@ -25,8 +26,7 @@ public:
 	void setup(); // if necessary, perhaps there are parameters to set
 
 	// Subdivision procedures.
-	ofMesh subdivide(ofMesh mesh);
-	ofMesh subdivide(ofMesh mesh, int iterations);
+    ofMesh subdivide(ofMesh mesh, int iterations = 1);
 
 };
 
