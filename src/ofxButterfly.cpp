@@ -37,9 +37,9 @@ gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> map)
     {
         ofIndexType i1, i2, i3;
         
-        i1 = indexes[i1];
-        i2 = indexes[i2];
-        i3 = indexes[i3];
+        i1 = indexes[i + 0];
+        i2 = indexes[i + 1];
+        i3 = indexes[i + 2];
         
         gfx::Vertex v1, v2, v3;
         
