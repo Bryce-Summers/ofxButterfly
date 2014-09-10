@@ -7,7 +7,7 @@ void ofApp::setup()
 {
     mesh.load("handmarksNew.ply");
     ofxButterfly butterfly;
-    subdivided = butterfly.subdivide(mesh);
+    subdivided = butterfly.subdivide(mesh, 4);
 }
 
 //--------------------------------------------------------------

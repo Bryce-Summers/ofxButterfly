@@ -178,7 +178,9 @@ Vertex WingedEdge::SubdivideEdge(const Face& f1, Edge& e, Vertex b1)
 
   } catch (const RuntimeError& e)
   {
-     /* proceed with the vertex, worst case it is just (a1+a2)/2 */
+     /* proceed with the original vertex,
+      * worst case it is just (a1+a2)/2
+      */
      return v_original;
   }
   
