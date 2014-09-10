@@ -23,8 +23,6 @@ public:
 	// Destructor.
 	virtual ~ofxButterfly();
 
-	void setup(); // if necessary, perhaps there are parameters to set
-
 	// Subdivision procedures.
     ofMesh subdivide(ofMesh mesh, int iterations = 1);
 

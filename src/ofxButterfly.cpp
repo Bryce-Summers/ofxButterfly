@@ -139,11 +139,6 @@ ofxButterfly::~ofxButterfly()
 	// TODO Auto-generated destructor stub
 }
 
-void ofxButterfly::setup()
-{
-	// So far It does not appear than any setup is necessary...
-}
-
 /*
  * REQUIRES: ofMesh must be in mode OF_PRIMITIVE_TRIANGLES.
  * 			iterations should be a positive number that specifies how many times the algorithm should be performed.

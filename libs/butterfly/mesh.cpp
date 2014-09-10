@@ -74,12 +74,14 @@ WingedEdge WingedEdge::Subdivide()
 {
   WingedEdge mesh;
   std::set<Edge> edges;
+    
   for (auto face = faceList.begin(); face != faceList.end(); ++face)
   {
+     
     /* massive assumption that there is 3 edges in our face */
-    Edge e1 = face->first.E1();
-    Edge e2 = face->first.E2();
-    Edge e3 = face->first.E3();
+    Edge e1 = face -> first.E1();
+    Edge e2 = face -> first.E2();
+    Edge e3 = face -> first.E3();
 
     /* might need to verify this doesn't pick duplicates */
     Vertex v1 = e1.V1();
@@ -139,9 +141,11 @@ WingedEdge WingedEdge::Subdivide()
 Vertex WingedEdge::SubdivideEdge(const Face& f1, Edge& e, Vertex b1)
 {
   /* get our a midpoint */
-  Vertex v;
+  Vertex v, v_original;
   v = e.V1()/2.0;
   v = v + (e.V2()/2.0);
+    
+  v_original = v;
 
   if (!butterfly) return v;
 
@@ -174,7 +178,8 @@ Vertex WingedEdge::SubdivideEdge(const Face& f1, Edge& e, Vertex b1)
 
   } catch (const RuntimeError& e)
   {
-    /* proceed with the vertex, worst case it is just (a1+a2)/2 */
+     /* proceed with the vertex, worst case it is just (a1+a2)/2 */
+     return v_original;
   }
   
   return v;
