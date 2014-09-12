@@ -18,6 +18,9 @@ Article about Butterfly Subdivision:
 http://www.gamasutra.com/view/feature/131584/implementing_subdivision_surface_.php?print=1
 
 Special Thanks To:
+=================
 Kyle McDonald for helping out with Open Frameworks issues.
+
 Lauren McCarthy for also providing encouragment.
+
 Golan Levin for leading the project that motivated the creation of this Wrapper Library.
