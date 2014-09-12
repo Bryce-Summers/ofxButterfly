@@ -17,7 +17,7 @@ gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> * map_vip, 
     
     // -- Extract and add all of the vertices.
     ofVec3f* vertices = mesh.getVerticesPointer();
-    int len_vertices = mesh.getNumVertices();
+    int len_vertices  = mesh.getNumVertices();
     
     std::vector<gfx::Vertex> dataVertices;
     
@@ -33,7 +33,7 @@ gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> * map_vip, 
     
     // Construct the tripartite relationship (Add the triangular faces.)
     ofIndexType * indexes = mesh.getIndexPointer();
-    int len_indexes = mesh.getNumIndices();
+    int len_indexes       = mesh.getNumIndices();
     
     for(int i = 0; i < len_indexes; i+=3)
     {
@@ -65,7 +65,6 @@ gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> * map_vip, 
 // ENSURES : The indices of the original vertices have not been mutated.
 ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> * index_mapp, std::map<int, gfx::Vertex> * map_ivp)
 {
-    
     auto index_map = *index_mapp;
     auto map_iv    = *map_ivp;
     
@@ -79,7 +78,6 @@ ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> * index_map
     // We need to compute the vertices, and the list of triangular
     // faces in the subdivision to reconstruct an ofMesh.
     
-    // ERROR!!!!! : This size returns 0 at the moment!!
     int len = map_iv.size();
     
     // Add the original vertices to the new ofMesh.
@@ -163,8 +161,6 @@ ofxButterfly::~ofxButterfly()
  */
 ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations)
 {
-    
-    // FIXME : We need to make sure these maps track their sizes, check to see if they are initialized properly.
 	std::map<gfx::Vertex, int> map_vertice_index;
     std::map<int, gfx::Vertex> map_index_vertice;
 
@@ -182,37 +178,3 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations)
 	return fromWingedEdge(WE_Output, &map_vertice_index, &map_index_vertice);
 
 }
-
-/*
-// Use BFS to find all of the faces in the new structure.
-std::set<gfx::Face> getFaceList(gfx::WingedEdge WE_initial)
-{
-	std::set<gfx::Face> output;
-	std::set<gfx::WingedEdge> visited;
-	std::queue<gfx::WingedEdge> frontier;
-
-	// Push the first winged edge.
-	frontier.push(WE_initial);
-
-	while(!frontier.empty())
-	{
-		gfx::WingedEdge WE = frontier.pop();
-
-		// Do not revisit nodes.
-		if(visited.find(WE) != std::set::end)
-		{
-			continue;
-		}
-
-		gfx::Face f1, f2;
-		f1 = WE.
-	}
-
-}
-
-// Use BFS to find all of the vertices in the new structure.
-std::vector<gfx::Vertex> getVertexList(std::vector<gfx::Face>)
-{
-
-}
-*/

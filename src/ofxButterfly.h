@@ -4,7 +4,9 @@
  *  Created on: Sep 4, 2014
  *      Author: Bryce Summers
  *
- *      Purpose : This class allows the user to subdivide ofMeshes.
+ *      Purpose : This class allows the user to subdivide ofMeshes via adaptive Butterfly Subdivision.
+ *
+ *                oxfButterfly::subdivide() gurantees that the original indices of the ofMesh will be preserved.
  */
 
 #ifndef OFXBUTTERFLY_H_
