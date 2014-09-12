@@ -21,6 +21,6 @@ Special Thanks To:
 =================
 Kyle McDonald for helping out with Open Frameworks issues.
 
-Lauren McCarthy for also providing encouragment.
+Lauren McCarthy for providing expertise and encouragment.
 
 Golan Levin for leading the project that motivated the creation of this Wrapper Library.
