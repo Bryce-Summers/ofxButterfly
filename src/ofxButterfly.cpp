@@ -10,8 +10,9 @@
 
 // Transforms an ofMesh to a gfx:: WindgedEdge.
 // ENSURES : The index orderings should not have been changed.
-gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> map)
+gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> * map_vip, std::map<int, gfx::Vertex> * map_ivp)
 {
+    
     gfx::WingedEdge WE_Output;
     
     // -- Extract and add all of the vertices.
@@ -26,7 +27,8 @@ gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> map)
         gfx::Vertex dataVert = WE_Output.AddVertex(vert.x, vert.y, vert.z);
         
         dataVertices.push_back(dataVert);
-        map.insert(std::pair<gfx::Vertex, int>(dataVert, i));
+        map_vip -> insert(std::pair<gfx::Vertex, int>(dataVert, i));
+        map_ivp -> insert(std::pair<int, gfx::Vertex>(i, dataVert));
     }
     
     // Construct the tripartite relationship (Add the triangular faces.)
@@ -61,8 +63,11 @@ gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> map)
 
 // Converts from a gfx::WingedEdge class to an ofMesh.
 // ENSURES : The indices of the original vertices have not been mutated.
-ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> index_map)
+ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> * index_mapp, std::map<int, gfx::Vertex> * map_ivp)
 {
+    
+    auto index_map = *index_mapp;
+    auto map_iv    = *map_ivp;
     
     ofMesh output;
     
@@ -74,27 +79,37 @@ ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> index_map)
     // We need to compute the vertices, and the list of triangular
     // faces in the subdivision to reconstruct an ofMesh.
     
-    int index = index_map.size();
+    // ERROR!!!!! : This size returns 0 at the moment!!
+    int len = map_iv.size();
     
-    // Compute the Vertices.
+    // Add the original vertices to the new ofMesh.
+    for(int i = 0; i < len; i++)
+    {
+        gfx::Vertex v = map_iv.find(i) -> second;
+        ofVec3f ofVector(v.X(), v.Y(), v.Z());
+        output.addVertex(ofVector);
+    }
+    
+    // Add the new vertices to the ofMesh and add them to the index_map;
     for(std::map<gfx::Vertex, std::set<gfx::Edge> >::iterator iter = vertMap.begin(); iter != vertMap.end(); ++iter)
     {
         gfx::Vertex v = iter -> first;
         
-        ofVec3f ofVector(v.X(), v.Y(), v.Z());
-        
-        output.addVertex(ofVector);
-        
-        // Insert v --> index into the map, if it is not already contained therin..
-        if(index_map.find(v) == index_map.end())
+        // Avoid reproccessing the original vertices that have already been added to the mesh.
+        if(index_map.find(v) != index_map.end())
         {
-            index_map[v] = index;
-            index++;
+            continue;
         }
+        
+        ofVec3f ofVector(v.X(), v.Y(), v.Z());
+        output.addVertex(ofVector);
+            
+        // The next index will always be equal to the length.
+        index_map[v] = len;
+        len++;
     }
     
     // Compute the Triangles.
-    // Compute the Vertices.
     for(std::map<gfx::Face, std::set<gfx::Edge> >::iterator iter = faceMap.begin(); iter != faceMap.end(); ++iter)
     {
         gfx::Face f = iter -> first;
@@ -148,10 +163,13 @@ ofxButterfly::~ofxButterfly()
  */
 ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations)
 {
-	std::map<gfx::Vertex, int> verticeMap;
+    
+    // FIXME : We need to make sure these maps track their sizes, check to see if they are initialized properly.
+	std::map<gfx::Vertex, int> map_vertice_index;
+    std::map<int, gfx::Vertex> map_index_vertice;
 
 	// Convert to winged edge.
-	gfx::WingedEdge WE_Output = toWingedEdge(mesh, verticeMap);
+	gfx::WingedEdge WE_Output = toWingedEdge(mesh, &map_vertice_index, &map_index_vertice);
 
 	// Subdivide.
 	for(int i = 0; i < iterations; i++)
@@ -161,7 +179,7 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations)
 	}
 
 	// Convert back.
-	return fromWingedEdge(WE_Output, verticeMap);
+	return fromWingedEdge(WE_Output, &map_vertice_index, &map_index_vertice);
 
 }
 
