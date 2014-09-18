@@ -27,7 +27,7 @@ public:
 	virtual ~ofxButterfly();
 
 	// Subdivision procedures.
-    ofMesh subdivide(ofMesh mesh, int iterations = 1);
+    ofMesh subdivide(ofMesh mesh, int iterations);
     ofMesh subdivide(ofMesh mesh);
 
 };
