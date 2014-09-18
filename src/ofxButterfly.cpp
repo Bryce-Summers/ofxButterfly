@@ -10,7 +10,7 @@
 
 // Transforms an ofMesh to a gfx:: WindgedEdge.
 // ENSURES : The index orderings should not have been changed.
-gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> * map_vip, std::map<int, gfx::Vertex> * map_ivp)
+gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> &map_vip, std::map<int, gfx::Vertex> &map_ivp)
 {
     
     gfx::WingedEdge WE_Output;
@@ -27,8 +27,8 @@ gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> * map_vip, 
         gfx::Vertex dataVert = WE_Output.AddVertex(vert.x, vert.y, vert.z);
         
         dataVertices.push_back(dataVert);
-        map_vip -> insert(std::pair<gfx::Vertex, int>(dataVert, i));
-        map_ivp -> insert(std::pair<int, gfx::Vertex>(i, dataVert));
+        map_vip.insert(std::pair<gfx::Vertex, int>(dataVert, i));
+        map_ivp.insert(std::pair<int, gfx::Vertex>(i, dataVert));
     }
     
     // Construct the tripartite relationship (Add the triangular faces.)
@@ -63,10 +63,8 @@ gfx::WingedEdge toWingedEdge(ofMesh mesh, std::map<gfx::Vertex, int> * map_vip, 
 
 // Converts from a gfx::WingedEdge class to an ofMesh.
 // ENSURES : The indices of the original vertices have not been mutated.
-ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> * index_mapp, std::map<int, gfx::Vertex> * map_ivp)
+ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> &index_map, std::map<int, gfx::Vertex> &map_iv)
 {
-    auto index_map = *index_mapp;
-    auto map_iv    = *map_ivp;
     
     ofMesh output;
     
@@ -142,6 +140,44 @@ ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> * index_map
     return output;
 }
 
+/* Moves the new points that have been linearly interpolated,
+ * and transforms them into points that are interpolated form
+ * the original vertices using bezier splines.
+ *
+ * REQUIRES : mesh is the subdivided mesh.
+ *          old_vertices_num is the number fo vertices in the mesh that existed before the subdivision.
+ *          map_ivp : a map between mesh indices and windgend edge vertices.
+ *          The Windged edge structure that provides efficient topology navigation.
+ * ENSURES : Uses cubic splines and the original mesh topology to navigate
+ */
+void splineFixPoints(ofMesh &mesh, int old_vertices_num, std::map<int, gfx::Vertex> &map_ivp, gfx::WingedEdge WE)
+{
+   ofVec3f * vertices = mesh.getVerticesPointer();
+ 
+   int vertices_size = mesh.getNumVertices();
+    
+   for(int i = old_vertices_num; i < vertices_size; i++)
+   {
+       // Extract the current linearly interpolated point.
+       ofVec3f * new_point = &vertices[i];
+       
+       // Extract the edge set pertaining to this new vertice.
+       gfx::Vertex vertex = map_ivp.find(i) -> second;
+       //std::set<gfx::Edge> edges = WE.vertexList.find(vertex) -> second;
+       
+       // Compute the original vertices.
+       //for(gfx::Edge edge : edges)
+       {
+           //Verteedge.V1();
+       }
+       
+       // Perform spline interpolation here based on an educated selection of original edge information.
+       
+       // Note: it seems that the subdivision does not increase the degrees of the mesh graph.
+   }
+    
+}
+
 ofxButterfly::ofxButterfly()
 {
 	// TODO Auto-generated constructor stub
@@ -158,23 +194,39 @@ ofxButterfly::~ofxButterfly()
  * ENSURES : Returns a subdivided ofMesh,
  * 			 all vertices in the original mesh must retain their positions
  * 			 and indices as given in the original mesh.
+ *          The original mesh should not be mutated.
  */
 ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations)
 {
+    ofMesh output = mesh;
+    for(int i = 0; i < iterations; i++)
+    {
+        output = subdivide(output);
+    }
+    
+    return output;
+}
+
+ofMesh ofxButterfly::subdivide(ofMesh mesh)
+{
+
 	std::map<gfx::Vertex, int> map_vertice_index;
     std::map<int, gfx::Vertex> map_index_vertice;
 
 	// Convert to winged edge.
-	gfx::WingedEdge WE_Output = toWingedEdge(mesh, &map_vertice_index, &map_index_vertice);
+	gfx::WingedEdge WE_original = toWingedEdge(mesh, map_vertice_index, map_index_vertice);
 
-	// Subdivide.
-	for(int i = 0; i < iterations; i++)
-	{
-		// FIXME : Do I need to worry about freeing memory?
-		WE_Output = WE_Output.ButterflySubdivide();
-	}
+	// Subdivide. (Do I need to free memory???)
 
-	// Convert back.
-	return fromWingedEdge(WE_Output, &map_vertice_index, &map_index_vertice);
+    gfx::WingedEdge WE_Output = WE_original.ButterflySubdivide();
+	
+    // Extract the fresh linear subdivided mesh.
+    ofMesh output = fromWingedEdge(WE_Output, map_vertice_index, map_index_vertice);
+
+    // Convert the linear interpolated points to spline interpolated points.
+    splineFixPoints(output, mesh.getNumVertices(), map_index_vertice, WE_Output);
+    
+	return output;
 
 }
+

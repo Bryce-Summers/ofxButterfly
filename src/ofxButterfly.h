@@ -15,6 +15,7 @@
 #include "ofMesh.h"
 #include "vertex.hpp"
 #include "edge.hpp"
+#include "cubic_spline.h"
 
 class ofxButterfly
 {
@@ -27,6 +28,7 @@ public:
 
 	// Subdivision procedures.
     ofMesh subdivide(ofMesh mesh, int iterations = 1);
+    ofMesh subdivide(ofMesh mesh);
 
 };
 

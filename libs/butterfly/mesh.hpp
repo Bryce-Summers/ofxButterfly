@@ -57,9 +57,14 @@ public:
   WingedEdge Subdivide();
   Vertex SubdivideEdge(const Face& f1, Edge& e, Vertex b1);
 
-  Face GetAdjacentFace(const Face& face, const Edge& edge);
-  Vertex GetAdjacentVertex(const Face& face, const Edge& edge);
-  Vertex GetAdjacentFaceVertex(const Face& face, const Edge& edge);
+  Face GetAdjacentFace(const Face& face, const Edge& edge, bool &success);
+  Vertex GetAdjacentVertex(const Face& face, const Edge& edge, bool &success);
+  Vertex GetAdjacentFaceVertex(const Face& face, const Edge& edge, bool &success);
+    
+  // Some more helpful helper functions.
+  int getNumAdjacentFaces(const Edge& edge);
+  Vertex getOtherBoundaryVertice(Vertex &a, Edge &e);
+  Vertex getOtherVertex(Edge &edge, Vertex &v);
 };
 
 /* end */
