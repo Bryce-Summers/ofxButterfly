@@ -201,13 +201,33 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations)
     ofMesh output = mesh;
     for(int i = 0; i < iterations; i++)
     {
-        output = subdivide(output);
+        output = subdivide(output, false);
     }
     
     return output;
 }
 
-ofMesh ofxButterfly::subdivide(ofMesh mesh)
+/*
+ * REQUIRES: ofMesh must be in mode OF_PRIMITIVE_TRIANGLES.
+ * 			iterations should be a positive number that specifies how many times the algorithm should be performed.
+ * ENSURES : Returns a subdivided ofMesh,
+ * 			 all vertices in the original mesh must retain their positions
+ * 			 and indices as given in the original mesh.
+ *          The original mesh should not be mutated.
+ */
+ofMesh ofxButterfly::subdivideEdges(ofMesh mesh, int iterations)
+{
+    ofMesh output = mesh;
+    for(int i = 0; i < iterations; i++)
+    {
+        output = subdivide(output, true);
+    }
+    
+    return output;
+    
+}
+
+ofMesh ofxButterfly::subdivide(ofMesh mesh, bool edges_only)
 {
 
 	std::map<gfx::Vertex, int> map_vertice_index;
@@ -218,8 +238,10 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh)
 
 	// Subdivide. (Do I need to free memory???)
 
-    gfx::WingedEdge WE_Output = WE_original.ButterflySubdivide();
-	
+    gfx::WingedEdge WE_Output;
+    
+    WE_Output = WE_original.SillyPascalSubdivide();
+ 	
     // Extract the fresh linear subdivided mesh.
     ofMesh output = fromWingedEdge(WE_Output, map_vertice_index, map_index_vertice);
 
@@ -229,4 +251,3 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh)
 	return output;
 
 }
-

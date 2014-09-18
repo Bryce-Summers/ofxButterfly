@@ -38,6 +38,8 @@ public:
   FaceList faceList;
   EdgeListMap edgeListMap;
   VertexList vertexList;
+    
+  // FIXME : Can we remove this variable?
   bool butterfly;
 
   WingedEdge() : butterfly(false) {}
@@ -51,16 +53,33 @@ public:
   int NumFaces() const { return faceList.size(); }
 
   void Draw();
-  
-  void SetButterflySubdivide() { butterfly = true; }
-  WingedEdge ButterflySubdivide();
+
+  // Linear interpolated subdivision. Triangles in/out.
   WingedEdge Subdivide();
+    
+  // Butterfly subdivision with naive inner cases and boundary cases.
+  // Triangles in/out.
+  WingedEdge ButterflySubdivide();
+    
+  // Subdivides the boundaries smoothly. Does not subdivide interior triangles.
+  // Triangles in/out.
+  WingedEdge BoundaryTrianglularSubdivide();
+    
+  // Subdivides exterior faces, deletes interior vertices.
+  // This is not the most serious of subdivision schemes.
+  WingedEdge SillyPascalSubdivide();
+
+   
+  // The Butterfly and boundary case calculation function.
   Vertex SubdivideEdge(const Face& f1, Edge& e, Vertex b1);
 
+    
+  // -- Windged Edge transversal helper functions.
+    
   Face GetAdjacentFace(const Face& face, const Edge& edge, bool &success);
   Vertex GetAdjacentVertex(const Face& face, const Edge& edge, bool &success);
   Vertex GetAdjacentFaceVertex(const Face& face, const Edge& edge, bool &success);
-    
+
   // Some more helpful helper functions.
   int getNumAdjacentFaces(const Edge& edge);
   Vertex getOtherBoundaryVertice(Vertex &a, Edge &e);

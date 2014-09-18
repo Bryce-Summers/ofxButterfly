@@ -66,8 +66,9 @@ void WingedEdge::Draw()
 
 WingedEdge WingedEdge::ButterflySubdivide()
 {
-  butterfly = true;
-  return Subdivide();
+    butterfly = true;
+ 
+    return Subdivide();
 }
 
 WingedEdge WingedEdge::Subdivide()
@@ -146,7 +147,126 @@ WingedEdge WingedEdge::Subdivide()
   return mesh;
 }
 
-/* FIXME : http://mrl.nyu.edu/~dzorin/papers/zorin1996ism.pdf Page 3.
+WingedEdge WingedEdge::BoundaryTrianglularSubdivide()
+{
+    butterfly = true;
+    
+    WingedEdge mesh;
+    std::set<Edge> edges;
+        
+    for (auto face = faceList.begin(); face != faceList.end(); ++face)
+    {
+            
+        /* massive assumption that there is 3 edges in our face */
+        Edge e1 = face -> first.E1();
+        Edge e2 = face -> first.E2();
+        Edge e3 = face -> first.E3();
+            
+        /* might need to verify this doesn't pick duplicates */
+        Vertex v1 = e1.V1();
+        Vertex v2 = e1.V2();
+        Vertex v3 = (e2.V1() == v1 || e2.V1() == v2) ? e2.V2() : e2.V1();
+        
+        // -- Boundary subdivision algorithm gets implemented here.
+        // CASE on how many boundary edges are present.
+        throw RuntimeError("Please Implement Me");
+    }
+}
+    
+    // -- A whimsical subdivision that creates pascal's triangle like structures.
+    WingedEdge WingedEdge::SillyPascalSubdivide()
+    {
+        butterfly = true;
+        
+        WingedEdge mesh;
+        std::set<Edge> edges;
+        
+        for (auto face = faceList.begin(); face != faceList.end(); ++face)
+        {
+            
+            /* massive assumption that there is 3 edges in our face */
+            Edge e1 = face -> first.E1();
+            Edge e2 = face -> first.E2();
+            Edge e3 = face -> first.E3();
+            
+            /* might need to verify this doesn't pick duplicates */
+            Vertex v1 = e1.V1();
+            Vertex v2 = e1.V2();
+            Vertex v3 = (e2.V1() == v1 || e2.V1() == v2) ? e2.V2() : e2.V1();
+            
+            /* guarantee we know what e2 is */
+            if (v1 == e3.V1() || v1 == e3.V2())
+            {
+                Edge tmp = e3;
+                e3 = e2;
+                e2 = tmp;
+            }
+            
+            int f1, f2, f3;
+            f1 = getNumAdjacentFaces(e1);
+            f2 = getNumAdjacentFaces(e2);
+            f3 = getNumAdjacentFaces(e3);
+            
+            // Do not subdivide and do not incorporate non boundary faces.
+            // This is the part the creates the pascal behavior,
+            if(f1 == 2 && f2 == 2 && f3 == 2)
+            {
+                continue;
+            }
+            
+            bool success = true;
+            Vertex v4 = SubdivideEdge(face->first, e1, GetAdjacentVertex(face->first, e1, success));
+            Vertex v5 = SubdivideEdge(face->first, e2, GetAdjacentVertex(face->first, e2, success));
+            Vertex v6 = SubdivideEdge(face->first, e3, GetAdjacentVertex(face->first, e3, success));
+            
+            if(!success)
+            {
+                throw RuntimeError("WindgedEdge Error: Something is wrong with the mesh to be subdivided.");
+            }
+            
+            {
+                e1 = mesh.AddEdge(v1, v4);
+                e2 = mesh.AddEdge(v1, v5);
+                e3 = mesh.AddEdge(v5, v4);
+                mesh.AddFace(e1, e2, e3);
+            }
+            
+            {
+                e1 = mesh.AddEdge(v4, v2);
+                e2 = mesh.AddEdge(v4, v6);
+                e3 = mesh.AddEdge(v6, v2);
+                mesh.AddFace(e1, e2, e3);
+            }
+            
+            {
+                e1 = mesh.AddEdge(v5, v6);
+                e2 = mesh.AddEdge(v5, v3);
+                e3 = mesh.AddEdge(v3, v6);
+                mesh.AddFace(e1, e2, e3);
+            }
+            
+            {
+                e1 = mesh.AddEdge(v6, v5);
+                e2 = mesh.AddEdge(v6, v4);
+                e3 = mesh.AddEdge(v4, v5);
+                mesh.AddFace(e1, e2, e3);
+            }
+            
+        }
+        
+        /*
+         std::cout << "Subdivide info: " << std::endl;
+         std::cout << "VertexList: " << mesh.NumVertices() << std::endl;
+         std::cout << "EdgeList: " << mesh.NumEdges() << std::endl;
+         std::cout << "FaceList: " << mesh.NumFaces() << std::endl;
+         */
+        
+        return mesh;
+    }
+    
+    
+/* This functions computes the new butterfly vertices based on the points in the stencil of the given edge.
+ *FIXME : http://mrl.nyu.edu/~dzorin/papers/zorin1996ism.pdf Page 3.
  * The special internal cases still need to be implemented.
  *
  * Only the degree 6 vertice cases and boundary cases have been implemented for butterfly.

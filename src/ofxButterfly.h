@@ -27,9 +27,10 @@ public:
 	virtual ~ofxButterfly();
 
 	// Subdivision procedures.
-    ofMesh subdivide(ofMesh mesh, int iterations);
-    ofMesh subdivide(ofMesh mesh);
-
+    ofMesh subdivide(ofMesh mesh, int iterations = 1);
+    ofMesh subdivideEdges(ofMesh mesh, int iterations = 1);
+    ofMesh subdivide(ofMesh mesh, bool edges_only);
+    
 };
 
 #endif /* OFXBUTTERFLY_H_ */
