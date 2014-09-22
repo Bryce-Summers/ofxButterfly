@@ -34,56 +34,67 @@ typedef std::map<Vertex, std::set<Edge> > VertexList;
 class WingedEdge
 {
 public:
-  /* made these public for fromWingedEdge */
-  FaceList faceList;
-  EdgeListMap edgeListMap;
-  VertexList vertexList;
+    /* made these public for fromWingedEdge */
+    FaceList faceList;
+    EdgeListMap edgeListMap;
+    VertexList vertexList;
     
-  // FIXME : Can we remove this variable?
-  bool butterfly;
-
-  WingedEdge() : butterfly(false) {}
-
-  Vertex AddVertex(GLfloat x, GLfloat y, GLfloat z);
-  Edge AddEdge(const Vertex& v1, const Vertex& v2);
-  Face AddFace(const Edge& e1, const Edge& e2, const Edge& e3); 
-
-  int NumVertices() const { return vertexList.size(); }
-  int NumEdges() const { return edgeListMap.size(); }
-  int NumFaces() const { return faceList.size(); }
-
-  void Draw();
-
-  // Linear interpolated subdivision. Triangles in/out.
-  WingedEdge Subdivide();
+    WingedEdge(){}
     
-  // Butterfly subdivision with naive inner cases and boundary cases.
-  // Triangles in/out.
-  WingedEdge ButterflySubdivide();
+    Vertex AddVertex(GLfloat x, GLfloat y, GLfloat z);
+    Edge AddEdge(const Vertex& v1, const Vertex& v2);
+    Edge AddEdge(const Edge& e);
+    Face AddFace(const Edge& e1, const Edge& e2, const Edge& e3);
     
-  // Subdivides the boundaries smoothly. Does not subdivide interior triangles.
-  // Triangles in/out.
-  WingedEdge BoundaryTrianglularSubdivide();
+    int NumVertices() const { return vertexList.size(); }
+    int NumEdges() const { return edgeListMap.size(); }
+    int NumFaces() const { return faceList.size(); }
     
-  // Subdivides exterior faces, deletes interior vertices.
-  // This is not the most serious of subdivision schemes.
-  WingedEdge SillyPascalSubdivide();
+    void Draw();
+    
+    // Linear interpolated subdivision. Triangles in/out.
+    WingedEdge LinearSubdivide();
+    
+    
+    // Butterfly Subdivision.
+    WingedEdge Subdivide();
+    
+    // Butterfly subdivision with naive inner cases and boundary cases.
+    // Triangles in/out.
+    WingedEdge ButterflySubdivide();
+    
+    // Subdivides the boundaries smoothly. Does not subdivide interior triangles.
+    // Triangles in/out.
+    WingedEdge BoundaryTrianglularSubdivide();
+    
+    // Subdivides exterior faces, deletes interior vertices.
+    // This is not the most serious of subdivision schemes.
+    WingedEdge SillyPascalSubdivide();
+    
+    
 
-   
-  // The Butterfly and boundary case calculation function.
-  Vertex SubdivideEdge(const Face& f1, Edge& e, Vertex b1);
+    
+    // Computes interpolated vertices.
+    Vertex SubdivideEdge(const Face& f1, Edge& e, Vertex b1, bool linear);
+    
+    
+    // -- Windged Edge transversal helper functions.
+    
+    Face GetAdjacentFace(const Face& face, const Edge& edge, bool &success);
+    Vertex GetAdjacentVertex(const Face& face, const Edge& edge, bool &success);
+    Vertex GetAdjacentFaceVertex(const Face& face, const Edge& edge, bool &success);
+    
+    // Some more helpful helper functions.
+    int getNumAdjacentFaces(const Edge& edge);
+    Vertex getOtherBoundaryVertice(Vertex &a, Edge &e);
+    Vertex getOtherVertex(Edge &edge, Vertex &v);
 
     
-  // -- Windged Edge transversal helper functions.
+    void performTriangulation(WingedEdge &mesh,
+                                    Vertex &v1, Vertex &v2, Vertex &v3,
+                                    Vertex &v4, Vertex &v5, Vertex &v6);
     
-  Face GetAdjacentFace(const Face& face, const Edge& edge, bool &success);
-  Vertex GetAdjacentVertex(const Face& face, const Edge& edge, bool &success);
-  Vertex GetAdjacentFaceVertex(const Face& face, const Edge& edge, bool &success);
-
-  // Some more helpful helper functions.
-  int getNumAdjacentFaces(const Edge& edge);
-  Vertex getOtherBoundaryVertice(Vertex &a, Edge &e);
-  Vertex getOtherVertex(Edge &edge, Vertex &v);
+    
 };
 
 /* end */

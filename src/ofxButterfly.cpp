@@ -240,7 +240,7 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh, bool edges_only)
 
     gfx::WingedEdge WE_Output;
     
-    WE_Output = WE_original.SillyPascalSubdivide();
+    WE_Output = WE_original.BoundaryTrianglularSubdivide();
  	
     // Extract the fresh linear subdivided mesh.
     ofMesh output = fromWingedEdge(WE_Output, map_vertice_index, map_index_vertice);
