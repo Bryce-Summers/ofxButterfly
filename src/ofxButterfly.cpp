@@ -167,7 +167,7 @@ ofMesh ofxButterfly::subdividePascal(ofMesh mesh, int iterations)
     return subdivide(mesh, iterations, PASCAL);
 }
 
-ofMesh ofxButterfly::subdivideEdges(ofMesh mesh, int iterations)
+ofMesh ofxButterfly::subdivideBoundary(ofMesh mesh, int iterations)
 {
     return subdivide(mesh, iterations, BOUNDARY);
 }

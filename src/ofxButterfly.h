@@ -33,7 +33,7 @@ public:
     ofMesh subdivideButterfly(ofMesh mesh, int iterations = 1);
     ofMesh subdivideLinear   (ofMesh mesh, int iterations = 1);
     ofMesh subdividePascal   (ofMesh mesh, int iterations = 1);
-    ofMesh subdivideEdges    (ofMesh mesh, int iterations = 1);
+    ofMesh subdivideBoundary (ofMesh mesh, int iterations = 1);
     
 private:
     
