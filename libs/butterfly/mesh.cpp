@@ -69,18 +69,21 @@ namespace gfx
             it->first.Draw();
     }
     
+    // Interface function, performs butterfly subdivision that does not account for the internal special cases.
+    // The subdivision only accounts for the boundaries and 6 regular vertices.
     WingedEdge WingedEdge::ButterflySubdivide()
     {
-        return Subdivide();
+        return Subdivide(false);
     }
     
+    // Interface function, performs linear subdivision on the mesh.
     WingedEdge WingedEdge::LinearSubdivide()
     {
-        throw new RuntimeError("Linear Subdivision is not currently implemented!");
-        return Subdivide();
+        return Subdivide(true);
     }
     
-    WingedEdge WingedEdge::Subdivide()
+    // Internal subdivision work function.
+    WingedEdge WingedEdge::Subdivide(bool linear)
     {
         WingedEdge mesh;
         std::set<Edge> edges;
@@ -92,11 +95,17 @@ namespace gfx
             Edge e1 = face -> first.E1();
             Edge e2 = face -> first.E2();
             Edge e3 = face -> first.E3();
-            
+
+            bool success = true;
             /* might need to verify this doesn't pick duplicates */
-            Vertex v1 = e1.V1();
-            Vertex v2 = e1.V2();
-            Vertex v3 = (e2.V1() == v1 || e2.V1() == v2) ? e2.V2() : e2.V1();
+            Vertex v1 = GetAdjacentVertex(face->first, e1, success);
+            Vertex v2 = GetAdjacentVertex(face->first, e2, success);
+            Vertex v3 = GetAdjacentVertex(face->first, e3, success);
+            
+            if(!success)
+            {
+                throw new RuntimeError("Something is wrong with the mesh topology");
+            }
             
             /* guarantee we know what e2 is */
             if (v1 == e3.V1() || v1 == e3.V2())
@@ -106,10 +115,9 @@ namespace gfx
                 e2 = tmp;
             }
             
-            bool success;
-            Vertex v4 = SubdivideEdge(face->first, e1, GetAdjacentVertex(face->first, e1, success), false);
-            Vertex v5 = SubdivideEdge(face->first, e2, GetAdjacentVertex(face->first, e2, success), false);
-            Vertex v6 = SubdivideEdge(face->first, e3, GetAdjacentVertex(face->first, e3, success), false);
+            Vertex v4 = SubdivideEdge(face->first, e1, v1, linear);
+            Vertex v5 = SubdivideEdge(face->first, e2, v2, linear);
+            Vertex v6 = SubdivideEdge(face->first, e3, v3, linear);
             
             performTriangulation(mesh, v1, v2, v3, v4, v5, v6);
             
@@ -386,7 +394,7 @@ namespace gfx
     // Adds 4 sub triangles based on three original vertices and 3 new vertices to the given mesh.
     // FIXME : Add better documentation and understanding to this function.
     void WingedEdge::performTriangulation(WingedEdge &mesh,
-                                          Vertex &v3, Vertex &v2, Vertex &v1,
+                                          Vertex &v1, Vertex &v2, Vertex &v3,
                                           Vertex &v4, Vertex &v5, Vertex &v6)
     {
         bool success = true;
@@ -400,22 +408,25 @@ namespace gfx
         }
         
         // Face 1.
-        e1 = mesh.AddEdge(v1, v4);
-        e2 = mesh.AddEdge(v1, v5);
-        e3 = mesh.AddEdge(v4, v5);
+        e1 = mesh.AddEdge(v1, v5);
+        e2 = mesh.AddEdge(v1, v6);
+        e3 = mesh.AddEdge(v5, v6);
         mesh.AddFace(e1, e2, e3);
+        
         
         // Face 2.
         e1 = mesh.AddEdge(v2, v4);
         e2 = mesh.AddEdge(v2, v6);
         e3 = mesh.AddEdge(v4, v6);
         mesh.AddFace(e1, e2, e3);
+        //
         
         // Face 3.
-        e1 = mesh.AddEdge(v3, v5);
-        e2 = mesh.AddEdge(v3, v6);
-        e3 = mesh.AddEdge(v5, v6);
+        e1 = mesh.AddEdge(v3, v4);
+        e2 = mesh.AddEdge(v3, v5);
+        e3 = mesh.AddEdge(v4, v5);
         mesh.AddFace(e1, e2, e3);
+        
         
         // Face 4.
         e1 = mesh.AddEdge(v4, v5);

@@ -7,6 +7,7 @@
  *      Purpose : This class allows the user to subdivide ofMeshes via adaptive Butterfly Subdivision.
  *
  *                oxfButterfly::subdivide() gurantees that the original indices of the ofMesh will be preserved.
+ *      Note: All of these subdivision procudure assume that the ofmesh has triangular faces.
  */
 
 #ifndef OFXBUTTERFLY_H_
@@ -19,6 +20,8 @@
 
 class ofxButterfly
 {
+    
+    
 public:
 	// Constructor.
 	ofxButterfly();
@@ -26,11 +29,18 @@ public:
 	// Destructor.
 	virtual ~ofxButterfly();
 
-	// Subdivision procedures.
-    ofMesh subdivide(ofMesh mesh, int iterations = 1);
-    ofMesh subdivideEdges(ofMesh mesh, int iterations = 1);
-    ofMesh subdivide(ofMesh mesh, bool edges_only);
+	// Subdivision procedures, requires trianglular meshes.
+    ofMesh subdivideButterfly(ofMesh mesh, int iterations = 1);
+    ofMesh subdivideLinear   (ofMesh mesh, int iterations = 1);
+    ofMesh subdividePascal   (ofMesh mesh, int iterations = 1);
+    ofMesh subdivideEdges    (ofMesh mesh, int iterations = 1);
     
+private:
+    
+    enum subdivision_type {BUTTERFLY, LINEAR, BOUNDARY, PASCAL};
+    ofMesh subdivide(ofMesh mesh, int iteration, subdivision_type type);
+    ofMesh subdivide(ofMesh mesh, subdivision_type type);
+
 };
 
 #endif /* OFXBUTTERFLY_H_ */

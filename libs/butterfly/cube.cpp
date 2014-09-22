@@ -116,7 +116,7 @@ void Cube::Draw()
 
 void Cube::Subdivide()
 {
-  mesh = mesh.Subdivide();
+  mesh = mesh.ButterflySubdivide();
 }
 
 /* end */

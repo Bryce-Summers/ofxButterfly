@@ -54,11 +54,7 @@ public:
     
     // Linear interpolated subdivision. Triangles in/out.
     WingedEdge LinearSubdivide();
-    
-    
-    // Butterfly Subdivision.
-    WingedEdge Subdivide();
-    
+   
     // Butterfly subdivision with naive inner cases and boundary cases.
     // Triangles in/out.
     WingedEdge ButterflySubdivide();
@@ -73,6 +69,7 @@ public:
     
     
 
+private:
     
     // Computes interpolated vertices.
     Vertex SubdivideEdge(const Face& f1, Edge& e, Vertex b1, bool linear);
@@ -94,6 +91,8 @@ public:
                                     Vertex &v1, Vertex &v2, Vertex &v3,
                                     Vertex &v4, Vertex &v5, Vertex &v6);
     
+    // The internal subdivision algorithm that takes options and subdivides based on the user's wishes.
+    WingedEdge Subdivide(bool linear);
     
 };
 
