@@ -167,9 +167,9 @@ ofMesh ofxButterfly::subdividePascal(ofMesh mesh, int iterations)
     return subdivide(mesh, iterations, PASCAL);
 }
 
-ofMesh ofxButterfly::subdivideBoundary(ofMesh mesh, int iterations)
+ofMesh ofxButterfly::subdivideBoundary(ofMesh mesh, float min_len_edges, int iterations)
 {
-    return subdivide(mesh, iterations, BOUNDARY);
+    return subdivide(mesh, iterations, BOUNDARY, min_len_edges);
 }
 
 
@@ -184,12 +184,12 @@ ofMesh ofxButterfly::subdivideBoundary(ofMesh mesh, int iterations)
  * 			 and indices as given in the original mesh.
  *          The original mesh should not be mutated.
  */
-ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations, subdivision_type type)
+ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations, subdivision_type type, float min_len_edges)
 {
     ofMesh output = mesh;
     for(int i = 0; i < iterations; i++)
     {
-        output = subdivide(output, type);
+        output = subdivide(output, type, min_len_edges);
     }
     
     return output;
@@ -197,7 +197,7 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations, subdivision_type typ
 
 
 // Performs one iteration of the subdivision.
-ofMesh ofxButterfly::subdivide(ofMesh mesh, subdivision_type type)
+ofMesh ofxButterfly::subdivide(ofMesh mesh, subdivision_type type, float min_len_edges)
 {
 
 	std::map<gfx::Vertex, int> map_vertice_index;
@@ -219,7 +219,7 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh, subdivision_type type)
             WE_Output = WE_original.LinearSubdivide();
             break;
         case BOUNDARY:
-            WE_Output = WE_original.BoundaryTrianglularSubdivide();
+            WE_Output = WE_original.BoundaryTrianglularSubdivide(min_len_edges);
             break;
         case PASCAL:
             WE_Output = WE_original.SillyPascalSubdivide();

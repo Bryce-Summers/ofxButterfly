@@ -73,67 +73,23 @@ namespace gfx
     // The subdivision only accounts for the boundaries and 6 regular vertices.
     WingedEdge WingedEdge::ButterflySubdivide()
     {
-        return Subdivide(false);
+        return Subdivide(false, false);
     }
     
     // Interface function, performs linear subdivision on the mesh.
     WingedEdge WingedEdge::LinearSubdivide()
     {
-        return Subdivide(true);
+        return Subdivide(true, false);
     }
     
-    // Internal subdivision work function.
-    WingedEdge WingedEdge::Subdivide(bool linear)
+    // -- A whimsical subdivision that creates pascal's triangle like structures.
+    WingedEdge WingedEdge::SillyPascalSubdivide()
     {
-        WingedEdge mesh;
-        std::set<Edge> edges;
-        
-        for (auto face = faceList.begin(); face != faceList.end(); ++face)
-        {
-            
-            /* massive assumption that there is 3 edges in our face */
-            Edge e1 = face -> first.E1();
-            Edge e2 = face -> first.E2();
-            Edge e3 = face -> first.E3();
-
-            bool success = true;
-            /* might need to verify this doesn't pick duplicates */
-            Vertex v1 = GetAdjacentVertex(face->first, e1, success);
-            Vertex v2 = GetAdjacentVertex(face->first, e2, success);
-            Vertex v3 = GetAdjacentVertex(face->first, e3, success);
-            
-            if(!success)
-            {
-                throw new RuntimeError("Something is wrong with the mesh topology");
-            }
-            
-            /* guarantee we know what e2 is */
-            if (v1 == e3.V1() || v1 == e3.V2())
-            {
-                Edge tmp = e3;
-                e3 = e2;
-                e2 = tmp;
-            }
-            
-            Vertex v4 = SubdivideEdge(face->first, e1, v1, linear);
-            Vertex v5 = SubdivideEdge(face->first, e2, v2, linear);
-            Vertex v6 = SubdivideEdge(face->first, e3, v3, linear);
-            
-            performTriangulation(mesh, v1, v2, v3, v4, v5, v6);
-            
-        }
-        
-        /*
-         std::cout << "Subdivide info: " << std::endl;
-         std::cout << "VertexList: " << mesh.NumVertices() << std::endl;
-         std::cout << "EdgeList: " << mesh.NumEdges() << std::endl;
-         std::cout << "FaceList: " << mesh.NumFaces() << std::endl;
-         */
-        
-        return mesh;
+        return Subdivide(false, true);
     }
     
-    WingedEdge WingedEdge::BoundaryTrianglularSubdivide()
+    // Subdivides only the edges on the boundary.
+    WingedEdge WingedEdge::BoundaryTrianglularSubdivide(float min_len)
     {
         
         WingedEdge mesh;
@@ -158,11 +114,19 @@ namespace gfx
                 throw new RuntimeError("Error : Winged Edge topology is malformed!");
             }
             
-            // Compute boundary predicates.
+            // Compute boundary predicates that answer whether or not an edge should be divided.
             bool b1, b2, b3;
             b1 = getNumAdjacentFaces(e1) == 1;
             b2 = getNumAdjacentFaces(e2) == 1;
             b3 = getNumAdjacentFaces(e3) == 1;
+            
+            if(min_len > 0)
+            {
+                float sqr_len_min = min_len*min_len;
+                b1 = b1 && e1.sqrLength() > sqr_len_min;
+                b2 = b2 && e2.sqrLength() > sqr_len_min;
+                b3 = b3 && e3.sqrLength() > sqr_len_min;
+            }
             
             // -- Count the number of edges that are on the boundary.
             int boundary_count = 0;
@@ -180,11 +144,11 @@ namespace gfx
                 mesh.AddFace(e1, e2, e3);
                 continue;
             }
-
+            
             // 1 boundary --> subdivide into 2 vertices.
             if(boundary_count == 1)
             {
-
+                
                 Vertex v_new, v_old1, v_old2, v_old3;
                 
                 if(b1)
@@ -282,7 +246,7 @@ namespace gfx
             e2 = mesh.AddEdge(v_old1, v_new2);
             e3 = mesh.AddEdge(v_new1, v_new2);
             mesh.AddFace(e1, e2, e3);
-
+            
             
             e1 = mesh.AddEdge(v_old3, v_new1);
             e2 = mesh.AddEdge(v_old3, v_new2);
@@ -300,8 +264,10 @@ namespace gfx
         return mesh;
     }
     
-    // -- A whimsical subdivision that creates pascal's triangle like structures.
-    WingedEdge WingedEdge::SillyPascalSubdivide()
+    
+    // -- Internal subdivision work function.
+    
+    WingedEdge WingedEdge::Subdivide(bool linear, bool pascal)
     {
         WingedEdge mesh;
         std::set<Edge> edges;
@@ -334,15 +300,15 @@ namespace gfx
             
             // Do not subdivide and do not incorporate non boundary faces.
             // This is the part the creates the pascal behavior,
-            if(f1 == 2 && f2 == 2 && f3 == 2)
+            if(pascal && f1 == 2 && f2 == 2 && f3 == 2)
             {
                 continue;
             }
             
             bool success = true;
-            Vertex v4 = SubdivideEdge(face->first, e1, GetAdjacentVertex(face->first, e1, success), false);
-            Vertex v5 = SubdivideEdge(face->first, e2, GetAdjacentVertex(face->first, e2, success), false);
-            Vertex v6 = SubdivideEdge(face->first, e3, GetAdjacentVertex(face->first, e3, success), false);
+            Vertex v4 = SubdivideEdge(face->first, e1, GetAdjacentVertex(face->first, e1, success), linear);
+            Vertex v5 = SubdivideEdge(face->first, e2, GetAdjacentVertex(face->first, e2, success), linear);
+            Vertex v6 = SubdivideEdge(face->first, e3, GetAdjacentVertex(face->first, e3, success), linear);
             
             // A half hearted success check.
             if(!success)
@@ -389,7 +355,6 @@ namespace gfx
         
         return mesh;
     }
-    
     
     // Adds 4 sub triangles based on three original vertices and 3 new vertices to the given mesh.
     // FIXME : Add better documentation and understanding to this function.

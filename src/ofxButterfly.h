@@ -33,13 +33,13 @@ public:
     ofMesh subdivideButterfly(ofMesh mesh, int iterations = 1);
     ofMesh subdivideLinear   (ofMesh mesh, int iterations = 1);
     ofMesh subdividePascal   (ofMesh mesh, int iterations = 1);
-    ofMesh subdivideBoundary (ofMesh mesh, int iterations = 1);
+    ofMesh subdivideBoundary (ofMesh mesh, float min_len_edges, int iterations = 1);
     
 private:
     
     enum subdivision_type {BUTTERFLY, LINEAR, BOUNDARY, PASCAL};
-    ofMesh subdivide(ofMesh mesh, int iteration, subdivision_type type);
-    ofMesh subdivide(ofMesh mesh, subdivision_type type);
+    ofMesh subdivide(ofMesh mesh, int iteration, subdivision_type type, float min_len_edges = -1);
+    ofMesh subdivide(ofMesh mesh, subdivision_type type, float min_len_edges);
 
 };
 

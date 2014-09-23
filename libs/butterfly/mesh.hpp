@@ -61,7 +61,8 @@ public:
     
     // Subdivides the boundaries smoothly. Does not subdivide interior triangles.
     // Triangles in/out.
-    WingedEdge BoundaryTrianglularSubdivide();
+    // if max_len > 0 this will only subdivide edges of length greater than min_len.
+    WingedEdge BoundaryTrianglularSubdivide(float min_len = -1);
     
     // Subdivides exterior faces, deletes interior vertices.
     // This is not the most serious of subdivision schemes.
@@ -70,6 +71,9 @@ public:
     
 
 private:
+
+    // The internal subdivision algorithm that takes options and subdivides based on the user's wishes.
+    WingedEdge Subdivide(bool linear, bool pascal);
     
     // Computes interpolated vertices.
     Vertex SubdivideEdge(const Face& f1, Edge& e, Vertex b1, bool linear);
@@ -90,10 +94,7 @@ private:
     void performTriangulation(WingedEdge &mesh,
                                     Vertex &v1, Vertex &v2, Vertex &v3,
                                     Vertex &v4, Vertex &v5, Vertex &v6);
-    
-    // The internal subdivision algorithm that takes options and subdivides based on the user's wishes.
-    WingedEdge Subdivide(bool linear);
-    
+  
 };
 
 /* end */
