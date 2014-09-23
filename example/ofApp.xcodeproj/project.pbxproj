@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		204C0FA1A182022F87FA91F6 /* ofxButterfly.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C426D533404EE2BDAFFF79B /* ofxButterfly.cpp */; };
+		979F3A4519D1D49C00FFFD35 /* cubic_spline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 979F3A4319D1D49C00FFFD35 /* cubic_spline.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		C120F6399E54AF8BD94A8FBB /* cube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F10D13BA174D511CBE97515E /* cube.cpp */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
@@ -66,6 +67,8 @@
 		3D684FA8C199BEB47ABD48F5 /* face.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = face.hpp; path = ../../../addons/ofxButterfly/libs/butterfly/face.hpp; sourceTree = SOURCE_ROOT; };
 		411B454210BFF4972B782F85 /* cube.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = cube.hpp; path = ../../../addons/ofxButterfly/libs/butterfly/cube.hpp; sourceTree = SOURCE_ROOT; };
 		80F8905D41F4F6DE64FF4DF8 /* mesh.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = mesh.hpp; path = ../../../addons/ofxButterfly/libs/butterfly/mesh.hpp; sourceTree = SOURCE_ROOT; };
+		979F3A4319D1D49C00FFFD35 /* cubic_spline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cubic_spline.cpp; path = ../src/cubic_spline.cpp; sourceTree = "<group>"; };
+		979F3A4419D1D49C00FFFD35 /* cubic_spline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cubic_spline.h; path = ../src/cubic_spline.h; sourceTree = "<group>"; };
 		9C426D533404EE2BDAFFF79B /* ofxButterfly.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxButterfly.cpp; path = ../../../addons/ofxButterfly/src/ofxButterfly.cpp; sourceTree = SOURCE_ROOT; };
 		A5483BC294714C95AC2406C7 /* edge.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = edge.hpp; path = ../../../addons/ofxButterfly/libs/butterfly/edge.hpp; sourceTree = SOURCE_ROOT; };
 		B34A735A34505CC36AEF35EF /* ofxButterfly.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxButterfly.h; path = ../../../addons/ofxButterfly/src/ofxButterfly.h; sourceTree = SOURCE_ROOT; };
@@ -181,6 +184,8 @@
 		D7E25A615292F6EBE17EAE2C /* src */ = {
 			isa = PBXGroup;
 			children = (
+				979F3A4319D1D49C00FFFD35 /* cubic_spline.cpp */,
+				979F3A4419D1D49C00FFFD35 /* cubic_spline.h */,
 				9C426D533404EE2BDAFFF79B /* ofxButterfly.cpp */,
 				B34A735A34505CC36AEF35EF /* ofxButterfly.h */,
 			);
@@ -339,6 +344,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
+				979F3A4519D1D49C00FFFD35 /* cubic_spline.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
 				204C0FA1A182022F87FA91F6 /* ofxButterfly.cpp in Sources */,
 				C120F6399E54AF8BD94A8FBB /* cube.cpp in Sources */,

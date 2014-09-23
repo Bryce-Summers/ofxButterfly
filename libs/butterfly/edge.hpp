@@ -89,21 +89,7 @@ public:
     os << "e" << std::endl << v.V1() << std::endl << v.V2();
     return os;
   }
-    
-    // Returns the squared length of this edge.
-    float sqrLength()
-    {
-        if(mag_sqr > -1)
-        {
-            return mag_sqr;
-        }
-        
-        Vertex v = v1 - v2;
-        mag_sqr = v.X()*v.X() + v.Y()*v.Y() + v.Z() * v.Z();
-        
-        return mag_sqr;
-    }
-  
+
 };
 
 /* end */

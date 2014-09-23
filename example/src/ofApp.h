@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxButterfly.h"
 
 class ofApp : public ofBaseApp{
 public:
@@ -19,4 +20,5 @@ public:
     void gotMessage(ofMessage msg);
     
     ofMesh mesh, subdivided;
+    ofxButterfly butterfly;
 };

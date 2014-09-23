@@ -137,7 +137,7 @@ namespace gfx
                 mid_l2 = SubdivideEdge(face -> first, e2, v2, true);
                 mid_l3 = SubdivideEdge(face -> first, e3, v3, true);
                 
-                float sqr_len_min = min_len*min_len;
+                float sqr_len_min = min_len > 1 ? min_len*min_len : min_len;
                 
                 b1 = b1 && computeSqrOffset(mid_b1, mid_l1) > sqr_len_min;
                 b2 = b2 && computeSqrOffset(mid_b2, mid_l2) > sqr_len_min;

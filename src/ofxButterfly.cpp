@@ -7,6 +7,8 @@
 
 #include "ofxButterfly.h"
 #include "mesh.hpp"
+#include "error.hpp"
+
 
 // Transforms an ofMesh to a gfx:: WindgedEdge.
 // ENSURES : The index orderings should not have been changed.

@@ -16,7 +16,6 @@
 #include "ofMesh.h"
 #include "vertex.hpp"
 #include "edge.hpp"
-#include "cubic_spline.h"
 
 class ofxButterfly
 {
