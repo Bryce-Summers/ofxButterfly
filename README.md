@@ -24,3 +24,7 @@ Kyle McDonald for helping out with Open Frameworks issues.
 Lauren McCarthy for providing expertise and encouragment.
 
 Golan Levin for leading the project that motivated the creation of this Wrapper Library.
+
+Note : Watch out with the boundary subdivision scheme. If used excessivly, some numerical errors will produce undesired results.
+
+The butterfly subdivision does not properly handle all special interior cases.
