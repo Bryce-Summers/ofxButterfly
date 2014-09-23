@@ -114,19 +114,36 @@ namespace gfx
                 throw new RuntimeError("Error : Winged Edge topology is malformed!");
             }
             
-            // Compute boundary predicates that answer whether or not an edge should be divided.
+            // -- Compute boundary predicates that answer whether or not an edge should be divided.
             bool b1, b2, b3;
             b1 = getNumAdjacentFaces(e1) == 1;
             b2 = getNumAdjacentFaces(e2) == 1;
             b3 = getNumAdjacentFaces(e3) == 1;
             
+            // FIXME : Only compute butefly midpoints, if the original predicate is true.
+            
+            // Compute interpolated midpoints.
+            Vertex mid_b1, mid_b2, mid_b3;
+            mid_b1 = SubdivideEdge(face -> first, e1, v1, false);
+            mid_b2 = SubdivideEdge(face -> first, e2, v2, false);
+            mid_b3 = SubdivideEdge(face -> first, e3, v3, false);
+            
+            // Bound the change in midpoint.
             if(min_len > 0)
             {
+                // Compute linear mid points.
+                Vertex mid_l1, mid_l2, mid_l3;
+                mid_l1 = SubdivideEdge(face -> first, e1, v1, true);
+                mid_l2 = SubdivideEdge(face -> first, e2, v2, true);
+                mid_l3 = SubdivideEdge(face -> first, e3, v3, true);
+                
                 float sqr_len_min = min_len*min_len;
-                b1 = b1 && e1.sqrLength() > sqr_len_min;
-                b2 = b2 && e2.sqrLength() > sqr_len_min;
-                b3 = b3 && e3.sqrLength() > sqr_len_min;
+                
+                b1 = b1 && computeSqrOffset(mid_b1, mid_l1) > sqr_len_min;
+                b2 = b2 && computeSqrOffset(mid_b2, mid_l2) > sqr_len_min;
+                b3 = b3 && computeSqrOffset(mid_b3, mid_l3) > sqr_len_min;
             }
+            
             
             // -- Count the number of edges that are on the boundary.
             int boundary_count = 0;
@@ -153,21 +170,21 @@ namespace gfx
                 
                 if(b1)
                 {
-                    v_new = SubdivideEdge(face -> first, e1, v1, false);
+                    v_new = mid_b1;
                     v_old1 = v1;
                     v_old2 = v2;
                     v_old3 = v3;
                 }
                 else if(b2)
                 {
-                    v_new = SubdivideEdge(face -> first, e2, v2, false);
+                    v_new = mid_b2;
                     v_old1 = v2;
                     v_old2 = v3;
                     v_old3 = v1;
                 }
                 else
                 {
-                    v_new = SubdivideEdge(face -> first, e3, v3, false);
+                    v_new = mid_b3;
                     v_old1 = v3;
                     v_old2 = v1;
                     v_old3 = v2;
@@ -189,15 +206,11 @@ namespace gfx
             
             // 2 - 3 boundaries. Perform the full 4 face triangulation.
             
-            Vertex vn1 = SubdivideEdge(face -> first, e1, v1, !b1);
-            Vertex vn2 = SubdivideEdge(face -> first, e2, v2, !b2);
-            Vertex vn3 = SubdivideEdge(face -> first, e3, v3, !b3);
-            
             if(boundary_count == 3)
             {
                 performTriangulation(mesh,
                                      v1, v2, v3,
-                                     vn1, vn2, vn3);
+                                     mid_b1, mid_b2, mid_b3);
                 
                 continue;
             }
@@ -207,7 +220,7 @@ namespace gfx
                 throw new RuntimeError("Face has more than 3 edges. This is not a triangle!");
             }
             
-            // -- 2 boundary code.
+            // -- 2 boundary case. Subdivide into 3 triangles.
             Vertex v_new1, v_new2, v_old1, v_old2, v_old3;
             
             if(!b1)
@@ -215,31 +228,26 @@ namespace gfx
                 v_old1 = v1;
                 v_old2 = v2;
                 v_old3 = v3;
-                v_new1 = vn2;
-                v_new2 = vn3;
+                v_new1 = mid_b2;
+                v_new2 = mid_b3;
             }
             else if(!b2)
             {
                 v_old1 = v2;
                 v_old2 = v3;
                 v_old3 = v1;
-                v_new1 = vn3;
-                v_new2 = vn1;
+                v_new1 = mid_b3;
+                v_new2 = mid_b1;
             }
             else
             {
                 v_old1 = v3;
                 v_old2 = v1;
                 v_old3 = v2;
-                v_new1 = vn1;
-                v_new2 = vn2;
+                v_new1 = mid_b1;
+                v_new2 = mid_b2;
             }
-            
-            /*
-             *
-             */
-            
-            // FIXME : add the proper faces here.
+
             
             // Boundary triangles.
             e1 = mesh.AddEdge(v_old1, v_new1);
@@ -600,6 +608,15 @@ namespace gfx
         
         //throw RuntimeError("No other boundary edge was found. Something might be wrong with your mesh.");
         return a;
+    }
+    
+    
+    // Returns the squared euclidean distance between the two vertices.
+    float WingedEdge::computeSqrOffset(Vertex v1,Vertex v2)
+    {
+     
+        Vertex v = v1 - v2;
+        return v.X()*v.X() + v.Y()*v.Y() + v.Z() * v.Z();
     }
     
     /* end */

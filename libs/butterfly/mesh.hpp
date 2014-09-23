@@ -95,6 +95,8 @@ private:
                                     Vertex &v1, Vertex &v2, Vertex &v3,
                                     Vertex &v4, Vertex &v5, Vertex &v6);
   
+    // Returns the squared euclidean distance between the two vertices.
+    float computeSqrOffset(Vertex v1,Vertex v2);
 };
 
 /* end */
