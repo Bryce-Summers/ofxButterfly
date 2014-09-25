@@ -169,9 +169,9 @@ ofMesh ofxButterfly::subdividePascal(ofMesh mesh, int iterations)
     return subdivide(mesh, iterations, PASCAL);
 }
 
-ofMesh ofxButterfly::subdivideBoundary(ofMesh mesh, float min_len_edges, int iterations)
+ofMesh ofxButterfly::subdivideBoundary(ofMesh mesh, float pixel_prescision, int iterations)
 {
-    return subdivide(mesh, iterations, BOUNDARY, min_len_edges);
+    return subdivide(mesh, iterations, BOUNDARY, pixel_prescision);
 }
 
 
@@ -186,12 +186,12 @@ ofMesh ofxButterfly::subdivideBoundary(ofMesh mesh, float min_len_edges, int ite
  * 			 and indices as given in the original mesh.
  *          The original mesh should not be mutated.
  */
-ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations, subdivision_type type, float min_len_edges)
+ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations, subdivision_type type, float pixel_prescision)
 {
     ofMesh output = mesh;
     for(int i = 0; i < iterations; i++)
     {
-        output = subdivide(output, type, min_len_edges);
+        output = subdivide(output, type, pixel_prescision);
     }
     
     return output;
@@ -199,17 +199,25 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations, subdivision_type typ
 
 
 // Performs one iteration of the subdivision.
-ofMesh ofxButterfly::subdivide(ofMesh mesh, subdivision_type type, float min_len_edges)
+ofMesh ofxButterfly::subdivide(ofMesh mesh, subdivision_type type, float pixel_prescision)
 {
 
 	std::map<gfx::Vertex, int> map_vertice_index;
     std::map<int, gfx::Vertex> map_index_vertice;
 
+    unsigned long long start = ofGetElapsedTimeMicros();
+    
 	// Convert to winged edge.
 	gfx::WingedEdge WE_original = toWingedEdge(mesh, map_vertice_index, map_index_vertice);
 
+    unsigned long long end = ofGetElapsedTimeMicros();
+    
+    printf("ToWingedEdge: %llu \n", end - start);
+    
 	// Subdivide. (Do I need to free memory???)
 
+    start = ofGetElapsedTimeMicros();
+    
     gfx::WingedEdge WE_Output;
     
     switch(type)
@@ -221,7 +229,7 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh, subdivision_type type, float min_len
             WE_Output = WE_original.LinearSubdivide();
             break;
         case BOUNDARY:
-            WE_Output = WE_original.BoundaryTrianglularSubdivide(min_len_edges);
+            WE_Output = WE_original.BoundaryTrianglularSubdivide(pixel_prescision);
             break;
         case PASCAL:
             WE_Output = WE_original.SillyPascalSubdivide();
@@ -229,10 +237,21 @@ ofMesh ofxButterfly::subdivide(ofMesh mesh, subdivision_type type, float min_len
         default:
             throw new RuntimeError("Malformed type. We do not know how to subdivide the mesh in the given way.");
     }
- 	
+    
+
+    end = ofGetElapsedTimeMicros();
+    printf("Subdivision: %llu \n", end - start);
+    
+    
+    start = ofGetElapsedTimeMicros();
+    
     // Extract the fresh linear subdivided mesh.
     ofMesh output = fromWingedEdge(WE_Output, map_vertice_index, map_index_vertice);
  
+    end = ofGetElapsedTimeMicros();
+    
+    printf("fromWingedEdge: %llu \n", end - start);
+    
 	return output;
 
 }
