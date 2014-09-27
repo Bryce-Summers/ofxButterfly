@@ -2,6 +2,7 @@
 #include <iostream>
 #include "mesh.hpp"
 #include "error.hpp"
+#include <sys/time.h>
 
 namespace gfx
 {
@@ -59,7 +60,7 @@ namespace gfx
         edgeListMap[e2].vertices.insert(e2.V2());
         edgeListMap[e3].vertices.insert(e3.V1());
         edgeListMap[e3].vertices.insert(e3.V2());
-        
+
         return f;
     }
     
@@ -92,22 +93,24 @@ namespace gfx
     WingedEdge WingedEdge::BoundaryTrianglularSubdivide(float min_len)
     {
         
-        WingedEdge mesh;
-        std::set<Edge> edges;
+        WingedEdge mesh;// = *this;
+
         
-        for (auto face = faceList.begin(); face != faceList.end(); ++face)
+        for (auto face_iter = faceList.begin(); face_iter != faceList.end(); ++face_iter)
         {
+            const Face face = face_iter -> first;
+            
             
             /* massive assumption that there is 3 edges in our face */
-            Edge e1 = face -> first.E1();
-            Edge e2 = face -> first.E2();
-            Edge e3 = face -> first.E3();
+            Edge e1 = face.E1();
+            Edge e2 = face.E2();
+            Edge e3 = face.E3();
             
             // Compute the vertices opposite the cooresponding indiced edges.
             bool success = true;
-            Vertex v1 = GetAdjacentVertex(face->first, e1, success);
-            Vertex v2 = GetAdjacentVertex(face->first, e2, success);
-            Vertex v3 = GetAdjacentVertex(face->first, e3, success);
+            Vertex v1 = GetAdjacentVertex(face, e1, success);
+            Vertex v2 = GetAdjacentVertex(face, e2, success);
+            Vertex v3 = GetAdjacentVertex(face, e3, success);
             
             if(!success)
             {
@@ -120,22 +123,37 @@ namespace gfx
             b2 = getNumAdjacentFaces(e2) == 1;
             b3 = getNumAdjacentFaces(e3) == 1;
             
-            // FIXME : Only compute butefly midpoints, if the original predicate is true.
+            // Non Boundary --> do not subdivide the face.
+            if(!(b1 || b2 || b3))
+            {
+                
+                e1 = mesh.AddEdge(e1);
+                e2 = mesh.AddEdge(e2);
+                e2 = mesh.AddEdge(e2);
+                
+                mesh.AddFace(e1, e2, e3);
+                
+                continue;
+            }
+            
+            
+            // FIXME : Only compute butterfly midpoints, if the original predicate is true.
             
             // Compute interpolated midpoints.
             Vertex mid_b1, mid_b2, mid_b3;
-            mid_b1 = SubdivideEdge(face -> first, e1, v1, false);
-            mid_b2 = SubdivideEdge(face -> first, e2, v2, false);
-            mid_b3 = SubdivideEdge(face -> first, e3, v3, false);
+            mid_b1 = SubdivideEdge(face, e1, v1, false);
+            mid_b2 = SubdivideEdge(face, e2, v2, false);
+            mid_b3 = SubdivideEdge(face, e3, v3, false);
+            
             
             // Bound the change in midpoint.
             if(min_len > 0)
             {
                 // Compute linear mid points.
                 Vertex mid_l1, mid_l2, mid_l3;
-                mid_l1 = SubdivideEdge(face -> first, e1, v1, true);
-                mid_l2 = SubdivideEdge(face -> first, e2, v2, true);
-                mid_l3 = SubdivideEdge(face -> first, e3, v3, true);
+                mid_l1 = SubdivideEdge(face, e1, v1, true);
+                mid_l2 = SubdivideEdge(face, e2, v2, true);
+                mid_l3 = SubdivideEdge(face, e3, v3, true);
                 
                 float sqr_len_min = min_len > 1 ? min_len*min_len : min_len;
                 
@@ -145,12 +163,13 @@ namespace gfx
             }
             
             
+            
             // -- Count the number of edges that are on the boundary.
             int boundary_count = 0;
             boundary_count = b1 ? boundary_count + 1 : boundary_count;
             boundary_count = b2 ? boundary_count + 1 : boundary_count;
             boundary_count = b3 ? boundary_count + 1 : boundary_count;
-            
+     
             // Non Boundary --> do not subdivide the face.
             if(boundary_count == 0)
             {
@@ -161,6 +180,7 @@ namespace gfx
                 mesh.AddFace(e1, e2, e3);
                 continue;
             }
+            
             
             // 1 boundary --> subdivide into 2 vertices.
             if(boundary_count == 1)
@@ -268,7 +288,7 @@ namespace gfx
             mesh.AddFace(e1, e2, e3);
             
         }
-        
+       
         return mesh;
     }
     
@@ -370,15 +390,8 @@ namespace gfx
                                           Vertex &v1, Vertex &v2, Vertex &v3,
                                           Vertex &v4, Vertex &v5, Vertex &v6)
     {
-        bool success = true;
-        
         Edge e1, e2, e3;
         
-        // A half hearted success check.
-        if(!success)
-        {
-            throw RuntimeError("WingedEdge Error: Something is wrong with the mesh to be subdivided.");
-        }
         
         // Face 1.
         e1 = mesh.AddEdge(v1, v5);
@@ -432,9 +445,6 @@ namespace gfx
         {
             return v;
         }
-        
-        Vertex v_original = v;
-        v_original = v;
         
         // Flag for whether we are in theboundary case or not.
         bool boundary = false;
@@ -517,7 +527,7 @@ namespace gfx
             v3 = getOtherBoundaryVertice(v1, e);
             v4 = getOtherBoundaryVertice(v2, e);
             
-            return v1*9/16 + v2*9/16 - v3/16 - v4/16;
+            return (v1*9 + v2*9 - v3 - v4)/16.0;
         }
         
         return v;
@@ -618,6 +628,247 @@ namespace gfx
         Vertex v = v1 - v2;
         return v.X()*v.X() + v.Y()*v.Y() + v.Z() * v.Z();
     }
+ 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /*
+     *
+     *
+     *  Special point derivation Subdivision routines.
+     *
+     *
+     */
+     
+     
+    // Subdivides all edges on the boundary. Populates information about the vertices that were subdivided.
+    WingedEdge WingedEdge::BoundaryTrianglularSubdivide(std::map<Vertex, std::vector<Vertex> > &derivations)
+    {
+        
+        WingedEdge mesh;
+        
+        
+        for (auto face_iter = faceList.begin(); face_iter != faceList.end(); ++face_iter)
+        {
+            const Face face = face_iter -> first;
+            
+            
+            /* massive assumption that there is 3 edges in our face */
+            Edge e1 = face.E1();
+            Edge e2 = face.E2();
+            Edge e3 = face.E3();
+            
+            // Compute the vertices opposite the cooresponding indiced edges.
+            bool success = true;
+            Vertex v1 = GetAdjacentVertex(face, e1, success);
+            Vertex v2 = GetAdjacentVertex(face, e2, success);
+            Vertex v3 = GetAdjacentVertex(face, e3, success);
+            
+            if(!success)
+            {
+                throw new RuntimeError("Error : Winged Edge topology is malformed!");
+            }
+            
+            // -- Compute boundary predicates that answer whether or not an edge should be divided.
+            bool b1, b2, b3;
+            b1 = getNumAdjacentFaces(e1) == 1;
+            b2 = getNumAdjacentFaces(e2) == 1;
+            b3 = getNumAdjacentFaces(e3) == 1;
+            
+            // Non Boundary --> do not subdivide the face.
+            if(!(b1 || b2 || b3))
+            {
+                
+                e1 = mesh.AddEdge(e1);
+                e2 = mesh.AddEdge(e2);
+                e2 = mesh.AddEdge(e2);
+                
+                mesh.AddFace(e1, e2, e3);
+                
+                continue;
+            }
+            
+            
+            // FIXME : Only compute butterfly midpoints, if the original predicate is true.
+            
+            // Compute interpolated midpoints.
+            Vertex mid_b1, mid_b2, mid_b3;
+            
+            if(b1){mid_b1 = SubdivideBoundaryEdge(e1, derivations);}
+            if(b2){mid_b2 = SubdivideBoundaryEdge(e2, derivations);}
+            if(b3){mid_b3 = SubdivideBoundaryEdge(e3, derivations);}
+            
+            // -- Count the number of edges that are on the boundary.
+            int boundary_count = 0;
+            boundary_count = b1 ? boundary_count + 1 : boundary_count;
+            boundary_count = b2 ? boundary_count + 1 : boundary_count;
+            boundary_count = b3 ? boundary_count + 1 : boundary_count;
+            
+            // Non Boundary --> do not subdivide the face.
+            if(boundary_count == 0)
+            {
+                e1 = mesh.AddEdge(e1);
+                e2 = mesh.AddEdge(e2);
+                e2 = mesh.AddEdge(e2);
+                
+                mesh.AddFace(e1, e2, e3);
+                continue;
+            }
+            
+            
+            // 1 boundary --> subdivide into 2 vertices.
+            if(boundary_count == 1)
+            {
+                
+                Vertex v_new, v_old1, v_old2, v_old3;
+                
+                if(b1)
+                {
+                    v_new = mid_b1;
+                    v_old1 = v1;
+                    v_old2 = v2;
+                    v_old3 = v3;
+                }
+                else if(b2)
+                {
+                    v_new = mid_b2;
+                    v_old1 = v2;
+                    v_old2 = v3;
+                    v_old3 = v1;
+                }
+                else
+                {
+                    v_new = mid_b3;
+                    v_old1 = v3;
+                    v_old2 = v1;
+                    v_old3 = v2;
+                }
+                
+                // face1
+                e1 = mesh.AddEdge(v_new, v_old1);
+                e2 = mesh.AddEdge(v_new, v_old2);
+                e3 = mesh.AddEdge(v_old1, v_old2);
+                mesh.AddFace(e1, e2, e3);
+                
+                // Face 2.
+                e2 = mesh.AddEdge(v_new, v_old3);
+                e3 = mesh.AddEdge(v_old1, v_old3);
+                mesh.AddFace(e1, e2, e3);
+                
+                continue;
+            }
+            
+            // 2 - 3 boundaries. Perform the full 4 face triangulation.
+            
+            if(boundary_count == 3)
+            {
+                performTriangulation(mesh,
+                                     v1, v2, v3,
+                                     mid_b1, mid_b2, mid_b3);
+                
+                continue;
+            }
+            
+            if(boundary_count > 3)
+            {
+                throw new RuntimeError("Face has more than 3 edges. This is not a triangle!");
+            }
+            
+            // -- 2 boundary case. Subdivide into 3 triangles.
+            Vertex v_new1, v_new2, v_old1, v_old2, v_old3;
+            
+            if(!b1)
+            {
+                v_old1 = v1;
+                v_old2 = v2;
+                v_old3 = v3;
+                v_new1 = mid_b2;
+                v_new2 = mid_b3;
+            }
+            else if(!b2)
+            {
+                v_old1 = v2;
+                v_old2 = v3;
+                v_old3 = v1;
+                v_new1 = mid_b3;
+                v_new2 = mid_b1;
+            }
+            else
+            {
+                v_old1 = v3;
+                v_old2 = v1;
+                v_old3 = v2;
+                v_new1 = mid_b1;
+                v_new2 = mid_b2;
+            }
+            
+            
+            // Boundary triangles.
+            e1 = mesh.AddEdge(v_old1, v_new1);
+            e2 = mesh.AddEdge(v_old1, v_new2);
+            e3 = mesh.AddEdge(v_new1, v_new2);
+            mesh.AddFace(e1, e2, e3);
+            
+            
+            e1 = mesh.AddEdge(v_old3, v_new1);
+            e2 = mesh.AddEdge(v_old3, v_new2);
+            e3 = mesh.AddEdge(v_new1, v_new2);
+            mesh.AddFace(e1, e2, e3);
+            
+            // Constant edge triangle.
+            e1 = mesh.AddEdge(v_old2, v_new2);
+            e2 = mesh.AddEdge(v_old3, v_new2);
+            e3 = mesh.AddEdge(v_old3, v_old2);
+            mesh.AddFace(e1, e2, e3);
+            
+        }
+        
+        return mesh;
+    }
+
+    
+    
+    // Computes interpolated vertices.
+    Vertex WingedEdge::SubdivideBoundaryEdge(Edge& e, std::map<Vertex, std::vector<Vertex> > &derivations)
+    {
+        /*
+         * Proceed with boundary case.
+         */
+        
+        // Extract the 4 vertices.
+        Vertex v1, v2, v3, v4;
+        v1 = e.V1();
+        v2 = e.V2();
+        v3 = getOtherBoundaryVertice(v1, e);
+        v4 = getOtherBoundaryVertice(v2, e);
+        
+        Vertex result = (v1*9 + v2*9 - v3 - v4)/16.0;
+        
+        // Store the derivation data.
+        std::vector<Vertex> v;
+        v.push_back(v1);
+        v.push_back(v2);
+        v.push_back(v3);
+        v.push_back(v4);
+        
+        derivations[result] = v;
+        
+        return result;
+    }
+    
+    
+    
+    
+    
+    
+    
     
     /* end */
 }

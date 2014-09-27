@@ -131,15 +131,22 @@
 			isa = PBXGroup;
 			children = (
 				D7E25A615292F6EBE17EAE2C /* src */,
-				9CFB57E64DDFAD5892C6E3FD /* libs */,
+				97DB68C819D4843D00362812 /* libs */,
 			);
 			name = ofxButterfly;
 			sourceTree = "<group>";
 		};
-		9CFB57E64DDFAD5892C6E3FD /* libs */ = {
+		97DB68C819D4843D00362812 /* libs */ = {
 			isa = PBXGroup;
 			children = (
-				E36617BB7383EBFE3CA33FD0 /* butterfly */,
+				F10D13BA174D511CBE97515E /* cube.cpp */,
+				411B454210BFF4972B782F85 /* cube.hpp */,
+				A5483BC294714C95AC2406C7 /* edge.hpp */,
+				2FFBC207D64D581F2DFC11E0 /* error.hpp */,
+				3D684FA8C199BEB47ABD48F5 /* face.hpp */,
+				E91273D724E14B468F02357F /* mesh.cpp */,
+				80F8905D41F4F6DE64FF4DF8 /* mesh.hpp */,
+				ECFB904B90B6BAE352FC01D0 /* vertex.hpp */,
 			);
 			name = libs;
 			sourceTree = "<group>";
@@ -190,21 +197,6 @@
 				B34A735A34505CC36AEF35EF /* ofxButterfly.h */,
 			);
 			name = src;
-			sourceTree = "<group>";
-		};
-		E36617BB7383EBFE3CA33FD0 /* butterfly */ = {
-			isa = PBXGroup;
-			children = (
-				F10D13BA174D511CBE97515E /* cube.cpp */,
-				411B454210BFF4972B782F85 /* cube.hpp */,
-				A5483BC294714C95AC2406C7 /* edge.hpp */,
-				2FFBC207D64D581F2DFC11E0 /* error.hpp */,
-				3D684FA8C199BEB47ABD48F5 /* face.hpp */,
-				E91273D724E14B468F02357F /* mesh.cpp */,
-				80F8905D41F4F6DE64FF4DF8 /* mesh.hpp */,
-				ECFB904B90B6BAE352FC01D0 /* vertex.hpp */,
-			);
-			name = butterfly;
 			sourceTree = "<group>";
 		};
 		E4328144138ABC890047C5CB /* Products */ = {

@@ -3,9 +3,12 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-    mesh.load("triangle.ply");
+    mesh.load("handmarksNew.ply");
     
-    subdivided = mesh;
+    butterfly.topology_start(mesh);
+    butterfly.topology_subdivide_boundary();
+    subdivided = butterfly.topology_end();
+    
 }
 
 //--------------------------------------------------------------
@@ -62,7 +65,16 @@ void ofApp::keyPressed(int key)
     // Subdivide the boundaries of the mesh.
     if(key == 'e')
     {
-        subdivided = butterfly.subdivideBoundary(subdivided, 1.4, 1);
+        /*
+        int start, end;
+        start = ofGetElapsedTimeMicros();
+        butterfly.fixMesh(mesh, subdivided);
+        end = ofGetElapsedTimeMicros();
+        
+        cout << "Fast Edge Fixing Time : " << end - start << std::endl;
+         */
+        
+        subdivided = butterfly.subdivideBoundary(subdivided, 2, 1);
         return;
     }
     

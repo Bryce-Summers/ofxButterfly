@@ -3,10 +3,10 @@
  *
  *  Created on: Sep 4, 2014
  *      Author: Bryce Summers
+ *
  */
 
 #include "ofxButterfly.h"
-#include "mesh.hpp"
 #include "error.hpp"
 
 
@@ -152,106 +152,247 @@ ofxButterfly::~ofxButterfly()
 	// TODO Auto-generated destructor stub
 }
 
-// -- Public interface functions.
-
-ofMesh ofxButterfly::subdivideButterfly(ofMesh mesh, int iterations)
-{
-    return subdivide(mesh, iterations, BUTTERFLY);
-}
-
-ofMesh ofxButterfly::subdivideLinear(ofMesh mesh, int iterations)
-{
-    return subdivide(mesh, iterations, LINEAR);
-}
-
-ofMesh ofxButterfly::subdividePascal(ofMesh mesh, int iterations)
-{
-    return subdivide(mesh, iterations, PASCAL);
-}
-
-ofMesh ofxButterfly::subdivideBoundary(ofMesh mesh, float pixel_prescision, int iterations)
-{
-    return subdivide(mesh, iterations, BOUNDARY, pixel_prescision);
-}
-
-
-// -- Private work functions.
-
-
 /*
- * REQUIRES: ofMesh must be in mode OF_PRIMITIVE_TRIANGLES.
- * 			iterations should be a positive number that specifies how many times the algorithm should be performed.
- * ENSURES : Returns a subdivided ofMesh,
- * 			 all vertices in the original mesh must retain their positions
- * 			 and indices as given in the original mesh.
- *          The original mesh should not be mutated.
+ *
+ * -- Public interface functions.
+ *
  */
-ofMesh ofxButterfly::subdivide(ofMesh mesh, int iterations, subdivision_type type, float pixel_prescision)
+
+
+// -- Single mesh subdivision functions.
+ofMesh ofxButterfly::subdivideButterfly(ofMesh &mesh, int iterations)
 {
-    ofMesh output = mesh;
-    for(int i = 0; i < iterations; i++)
-    {
-        output = subdivide(output, type, pixel_prescision);
-    }
-    
+    subdivide_start(mesh);
+    subdivideButterfly(iterations);
+    return subdivide_end();
+}
+
+ofMesh ofxButterfly::subdivideLinear(ofMesh &mesh, int iterations)
+{
+    subdivide_start(mesh);
+    subdivideLinear(iterations);
+    return subdivide_end();
+}
+
+ofMesh ofxButterfly::subdividePascal(ofMesh &mesh, int iterations)
+{
+    subdivide_start(mesh);
+    subdividePascal(iterations);
+    return subdivide_end();
+}
+
+ofMesh ofxButterfly::subdivideBoundary(ofMesh &mesh, float pixel_prescision, int iterations)
+{
+    subdivide_start(mesh);
+    subdivideBoundary(pixel_prescision, iterations);
+    return subdivide_end();
+}
+
+
+// -- Batch subdivision pipeline.
+
+// Prepares the given mesh for subdivision.
+void ofxButterfly::subdivide_start(ofMesh &mesh)
+{
+    map_vertice_index.clear();
+    map_index_vertice.clear();
+    current_WE = toWingedEdge(mesh, map_vertice_index, map_index_vertice);
+}
+
+inline void ofxButterfly::subdivideButterfly(int iterations)
+{
+    subdivide(iterations, BUTTERFLY);
+}
+
+inline void ofxButterfly::subdivideLinear(int iterations)
+{
+    subdivide(iterations, LINEAR);
+}
+
+inline void ofxButterfly::subdividePascal(int iterations)
+{
+    subdivide(iterations, PASCAL);
+}
+
+inline void ofxButterfly::subdivideBoundary(float pixel_prescision, int iterations)
+{
+    subdivide(iterations, BOUNDARY, pixel_prescision);
+}
+
+inline ofMesh ofxButterfly::subdivide_end()
+{
+    // Extract the subdivided mesh.
+    ofMesh output = fromWingedEdge(current_WE, map_vertice_index, map_index_vertice);
     return output;
 }
 
-
-// Performs one iteration of the subdivision.
-ofMesh ofxButterfly::subdivide(ofMesh mesh, subdivision_type type, float pixel_prescision)
+// Fast repetitive subdivision routines.
+void ofxButterfly::topology_start(ofMesh &mesh)
 {
-
-	std::map<gfx::Vertex, int> map_vertice_index;
-    std::map<int, gfx::Vertex> map_index_vertice;
-
-    unsigned long long start = ofGetElapsedTimeMicros();
+    map_vertice_index.clear();
+    map_index_vertice.clear();
     
-	// Convert to winged edge.
-	gfx::WingedEdge WE_original = toWingedEdge(mesh, map_vertice_index, map_index_vertice);
-
-    unsigned long long end = ofGetElapsedTimeMicros();
-    
-    printf("ToWingedEdge: %llu \n", end - start);
-    
-	// Subdivide. (Do I need to free memory???)
-
-    start = ofGetElapsedTimeMicros();
-    
-    gfx::WingedEdge WE_Output;
-    
-    switch(type)
+    // -- Initialize the transformation mapping.
+    transformation.clear();
+    int len = mesh.getNumVertices();
+    for(int i = 0; i < len; i++)
     {
-        case BUTTERFLY:
-            WE_Output = WE_original.ButterflySubdivide();
-            break;
-        case LINEAR:
-            WE_Output = WE_original.LinearSubdivide();
-            break;
-        case BOUNDARY:
-            WE_Output = WE_original.BoundaryTrianglularSubdivide(pixel_prescision);
-            break;
-        case PASCAL:
-            WE_Output = WE_original.SillyPascalSubdivide();
-            break;
-        default:
-            throw new RuntimeError("Malformed type. We do not know how to subdivide the mesh in the given way.");
+        vector<int> val;
+        val.push_back(i);
+        transformation[i] = val;
     }
     
+    current_WE = toWingedEdge(mesh, map_vertice_index, map_index_vertice);
+}
 
-    end = ofGetElapsedTimeMicros();
-    printf("Subdivision: %llu \n", end - start);
+void ofxButterfly::topology_subdivide_boundary()
+{
+    std::map<gfx::Vertex, std::vector<gfx::Vertex> > info;
     
+    // -- Subdivide every boundary vertice.
+    current_WE = current_WE.BoundaryTrianglularSubdivide(info);
     
-    start = ofGetElapsedTimeMicros();
-    
-    // Extract the fresh linear subdivided mesh.
-    ofMesh output = fromWingedEdge(WE_Output, map_vertice_index, map_index_vertice);
- 
-    end = ofGetElapsedTimeMicros();
-    
-    printf("fromWingedEdge: %llu \n", end - start);
-    
-	return output;
+    // Update the transformation.
+    int next_index = transformation.size();
+    for(auto iter = current_WE.vertexList.begin(); iter != current_WE.vertexList.end(); ++iter)
+    {
+        gfx::Vertex v = iter -> first;
+        
+        // If the vertice is old, just continue.
+        if(map_vertice_index.find(v) != map_vertice_index.end())
+        {
+            continue;
+        }
+        
+        // The vertice is new.
+        map_vertice_index[v] = next_index;
+        map_index_vertice[next_index] = v;
+        
+        // -- Convert the vertex_derivation to an indice derivation.
+        // note: that all vertices/indexes in the derivation must be old, becuase of the subdivision algorithm.
+        std::vector<gfx::Vertex> vertex_derivation = info.find(v)->second;
+        std::vector<int> indice_derivation;
+        
+        for(auto iter = vertex_derivation.begin(); iter != vertex_derivation.end(); ++iter)
+        {
+            indice_derivation.push_back(map_vertice_index[*iter]);
+        }
+        
+        transformation[next_index] = indice_derivation;
+        
+        next_index++;
+    }
+   
+}
 
+ofMesh ofxButterfly::topology_end()
+{
+    return subdivide_end();
+}
+
+
+void ofxButterfly::fixMesh(ofMesh &mesh, ofMesh &subdivided_mesh)
+{
+    vector<ofVec3f> original_vertices = mesh.getVertices();
+    vector<ofVec3f> sub_vertices = subdivided_mesh.getVertices();
+    
+    int original_vert_num = original_vertices.size();
+    
+    // Move all of the original vertices to the divided mesh.
+    for(int i = 0; i < original_vert_num; i++)
+    {
+        sub_vertices[i] = original_vertices[i];
+    }
+    
+    deriveVertices(original_vert_num, sub_vertices);
+}
+
+// -- Private work functions.
+
+// Only called from fixMesh.
+inline void ofxButterfly::deriveVertices(int first_derived_indice, vector<ofVec3f> & vertices)
+{
+    int max_indice = vertices.size();
+    
+    // Temporary vectors.
+    ofVec3f a1, a2, b1, b2, c1, c2, c3, c4, d1, d2;
+    
+    for(int i = first_derived_indice; i < max_indice; i++)
+    {
+        vector<int> inputs = transformation[i];
+        
+        int size = inputs.size();
+        
+        switch(size)
+        {
+             // Same vertex.
+            case 1: vertices[i] = vertices[inputs[0]];
+                continue;
+                
+            // Linear Interpolation.
+            case 2: vertices[i] = (vertices[inputs[0]] + vertices[inputs[1]])/2;
+                continue;
+                
+            // Boundary interpolation.
+            case 4:
+                a1 = vertices[inputs[0]];
+                a2 = vertices[inputs[1]];
+                b1 = vertices[inputs[2]];
+                b2 = vertices[inputs[3]];
+                vertices[i] = (9*a1 + 9*a2 - b1 - b2)/16.0;
+                continue;
+                
+            // Internal 6 regular butterfly subdivision.
+            case 8:
+                a1 = vertices[inputs[0]];
+                a2 = vertices[inputs[1]];
+                b1 = vertices[inputs[2]];
+                b2 = vertices[inputs[3]];
+
+                c1 = vertices[inputs[4]];
+                c2 = vertices[inputs[5]];
+                c3 = vertices[inputs[6]];
+                c4 = vertices[inputs[7]];
+
+                /*
+                d1 = vertices[inputs[8]];
+                d2 = vertices[inputs[9]];
+                */
+                 
+                // FIXME : I do not know if this is correct.
+                vertices[i] = (8*(a1 + a2) + 2*(b1 + b2) -(c1 + c2 + c3 + c4))/16.0;// + d1 + d2;
+                continue;
+                
+            default : throw new RuntimeError("Error in the topology Derivation data structures.");
+        }
+    }
+}
+
+// FIXME : Disperse this code up to the other functions.
+
+// Performs one iteration of the subdivision.
+void ofxButterfly::subdivide(int iterations, subdivision_type type, float pixel_prescision)
+{
+    // Subdivide. (Do I need to free memory???)
+
+    for(int i = 0; i < iterations; i++)
+    {
+        switch(type)
+        {
+            case BUTTERFLY:
+                current_WE = current_WE.ButterflySubdivide();
+                break;
+            case LINEAR:
+                current_WE = current_WE.LinearSubdivide();
+                break;
+            case BOUNDARY:
+                current_WE = current_WE.BoundaryTrianglularSubdivide(pixel_prescision);
+                break;
+            case PASCAL:
+                current_WE = current_WE.SillyPascalSubdivide();
+                break;
+            default:
+                throw new RuntimeError("Malformed type. We do not know how to subdivide the mesh in the given way.");
+        }
+    }
 }

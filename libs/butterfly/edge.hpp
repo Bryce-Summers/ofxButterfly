@@ -15,7 +15,7 @@ class Edge
   Vertex v1;
   Vertex v2;
 
-    float mag_sqr = -1;
+  float mag_sqr = -1;
     
 public:
   Edge() {}

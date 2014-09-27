@@ -28,7 +28,7 @@ struct EdgeList
 
 typedef std::map<Edge, EdgeList> EdgeListMap;
 
-typedef std::map<Vertex, std::set<Edge> > VertexList; 
+typedef std::map<Vertex, std::set<Edge> > VertexList;
 
 /* based on wikipedia article http://en.wikipedia.org/wiki/Polygon_mesh */
 class WingedEdge
@@ -67,9 +67,16 @@ public:
     // Subdivides exterior faces, deletes interior vertices.
     // This is not the most serious of subdivision schemes.
     WingedEdge SillyPascalSubdivide();
+  
     
     
-
+    
+    /*
+     * Special Derivation capable routinues.
+     */
+    WingedEdge BoundaryTrianglularSubdivide(std::map<Vertex, std::vector<Vertex> > &derivations);
+    
+    
 private:
 
     // The internal subdivision algorithm that takes options and subdivides based on the user's wishes.
@@ -97,6 +104,14 @@ private:
   
     // Returns the squared euclidean distance between the two vertices.
     float computeSqrOffset(Vertex v1,Vertex v2);
+
+    
+    /*
+     * Special Derivation capable routines.
+     */
+    // Computes interpolated vertices.
+    Vertex SubdivideBoundaryEdge(Edge& e, std::map<Vertex, std::vector<Vertex> > &derivations);
+    
 };
 
 /* end */
