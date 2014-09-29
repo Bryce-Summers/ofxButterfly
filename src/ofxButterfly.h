@@ -105,8 +105,7 @@ private:
     enum subdivision_type {BUTTERFLY, LINEAR, BOUNDARY, PASCAL};
     void subdivide(int iterations, subdivision_type type, float pixel_prescision = -1);
     
-    inline void deriveVertices(int first_derived_indice, vector<ofVec3f> & vertices);
-    
+    inline void deriveVertices(int first_derived_indice, ofVec3f * vertices, int max_indice);
     
     // -- Subdivision data structures.
     

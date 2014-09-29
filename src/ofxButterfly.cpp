@@ -294,7 +294,7 @@ ofMesh ofxButterfly::topology_end()
 void ofxButterfly::fixMesh(ofMesh &mesh, ofMesh &subdivided_mesh)
 {
     vector<ofVec3f> original_vertices = mesh.getVertices();
-    vector<ofVec3f> sub_vertices = subdivided_mesh.getVertices();
+    ofVec3f * sub_vertices = subdivided_mesh.getVerticesPointer();
     
     int original_vert_num = original_vertices.size();
     
@@ -304,15 +304,15 @@ void ofxButterfly::fixMesh(ofMesh &mesh, ofMesh &subdivided_mesh)
         sub_vertices[i] = original_vertices[i];
     }
     
-    deriveVertices(original_vert_num, sub_vertices);
+    deriveVertices(original_vert_num, sub_vertices, subdivided_mesh.getNumVertices());
 }
 
 // -- Private work functions.
 
 // Only called from fixMesh.
-inline void ofxButterfly::deriveVertices(int first_derived_indice, vector<ofVec3f> & vertices)
+inline void ofxButterfly::deriveVertices(int first_derived_indice, ofVec3f * vertices, int max_indice)
 {
-    int max_indice = vertices.size();
+//    int max_indice = vertices.size();
     
     // Temporary vectors.
     ofVec3f a1, a2, b1, b2, c1, c2, c3, c4, d1, d2;
