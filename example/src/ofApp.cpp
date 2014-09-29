@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-    mesh.load("handmarksNew.ply");
+    mesh.load("hand151.ply");
     
     butterfly.topology_start(mesh);
     
@@ -33,11 +33,12 @@ void ofApp::draw()
     subdivided.drawWireframe();
     
     int x = 700;
-    ofDrawBitmapString("Press R to reset the mesh!",    x, 200);
-    ofDrawBitmapString("'B' = Butterfly subdivide",     x, 250);
-    ofDrawBitmapString("'L' = linear subdivide",        x, 300);
-    ofDrawBitmapString("'P' = pascal subdivide",        x, 350);
-    ofDrawBitmapString("'E' = Boundary Subdivide",      x, 400);
+    ofDrawBitmapString("Press 'r' to reset the mesh!",    x, 200);
+    ofDrawBitmapString("'b' = Butterfly subdivide",     x, 250);
+    ofDrawBitmapString("'l' = linear subdivide",        x, 300);
+    ofDrawBitmapString("'p' = pascal subdivide",        x, 350);
+    ofDrawBitmapString("'e' = Boundary Subdivide",      x, 400);
+    ofDrawBitmapString("'f' = recompute a boundary subdivided mesh.",  x, 450);
 }
 
 //--------------------------------------------------------------
@@ -65,7 +66,7 @@ void ofApp::keyPressed(int key)
     }
     
     // Subdivide the boundaries of the mesh.
-    if(key == 'e')
+    if(key == 'f')
     {
         
         //mesh.getVertices()[0] = ofVec3f(0, 0, 0);
@@ -79,6 +80,12 @@ void ofApp::keyPressed(int key)
         
         
         //subdivided = butterfly.subdivideBoundary(subdivided, 2, 1);
+        return;
+    }
+    
+    if(key == 'e')
+    {
+        subdivided = butterfly.subdivideBoundary(subdivided, -1, 1);
         return;
     }
     
