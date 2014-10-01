@@ -303,8 +303,21 @@ void ofxButterfly::fixMesh(ofMesh &mesh, ofMesh &subdivided_mesh)
     {
         sub_vertices[i] = original_vertices[i];
     }
-    
+
     deriveVertices(original_vert_num, sub_vertices, subdivided_mesh.getNumVertices());
+    
+    
+    // --  handle texture coordinates.
+    // handle texture coordinates.
+    ofVec2f * sub_textureCoords = subdivided_mesh.getTexCoordsPointer();
+    int original_texture_num = mesh.getNumTexCoords();
+    for(int i = 0; i < original_texture_num; i++)
+    {
+        sub_textureCoords[i] = mesh.getTexCoord(i);
+    }
+    
+    // Derive the rest of the texture coordinates.
+    deriveTextureVertices(original_vert_num, sub_textureCoords, subdivided_mesh.getNumVertices());
 }
 
 // -- Private work functions.
@@ -367,6 +380,65 @@ inline void ofxButterfly::deriveVertices(int first_derived_indice, ofVec3f * ver
         }
     }
 }
+
+inline void ofxButterfly::deriveTextureVertices(int first_derived_indice, ofVec2f * vertices, int max_indice)
+{
+    //    int max_indice = vertices.size();
+    
+    // Temporary vectors.
+    ofVec3f a1, a2, b1, b2, c1, c2, c3, c4, d1, d2;
+    
+    for(int i = first_derived_indice; i < max_indice; i++)
+    {
+        vector<int> inputs = transformation[i];
+        
+        int size = inputs.size();
+        
+        switch(size)
+        {
+                // Same vertex.
+            case 1: vertices[i] = vertices[inputs[0]];
+                continue;
+                
+                // Linear Interpolation.
+            case 2: vertices[i] = (vertices[inputs[0]] + vertices[inputs[1]])/2;
+                continue;
+                
+                // Boundary interpolation.
+            case 4:
+                a1 = vertices[inputs[0]];
+                a2 = vertices[inputs[1]];
+                b1 = vertices[inputs[2]];
+                b2 = vertices[inputs[3]];
+                vertices[i] = (9*a1 + 9*a2 - b1 - b2)/16.0;
+                continue;
+                
+                // Internal 6 regular butterfly subdivision.
+            case 8:
+                a1 = vertices[inputs[0]];
+                a2 = vertices[inputs[1]];
+                b1 = vertices[inputs[2]];
+                b2 = vertices[inputs[3]];
+                
+                c1 = vertices[inputs[4]];
+                c2 = vertices[inputs[5]];
+                c3 = vertices[inputs[6]];
+                c4 = vertices[inputs[7]];
+                
+                /*
+                 d1 = vertices[inputs[8]];
+                 d2 = vertices[inputs[9]];
+                 */
+                
+                // FIXME : I do not know if this is correct.
+                vertices[i] = (8*(a1 + a2) + 2*(b1 + b2) -(c1 + c2 + c3 + c4))/16.0;// + d1 + d2;
+                continue;
+                
+            default : throw new RuntimeError("Error in the topology Derivation data structures.");
+        }
+    }
+}
+
 
 // FIXME : Disperse this code up to the other functions.
 

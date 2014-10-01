@@ -106,6 +106,7 @@ private:
     void subdivide(int iterations, subdivision_type type, float pixel_prescision = -1);
     
     inline void deriveVertices(int first_derived_indice, ofVec3f * vertices, int max_indice);
+    inline void deriveTextureVertices(int first_derived_indice, ofVec2f * vertices, int max_indice);
     
     // -- Subdivision data structures.
     
