@@ -6,7 +6,7 @@ void ofApp::setup()
     mesh.load("hand151.ply");
     
     butterfly.topology_start(mesh);
-    
+
     for(int i = 0; i < 5; i++)
     butterfly.topology_subdivide_boundary();
     subdivided = butterfly.topology_end();
