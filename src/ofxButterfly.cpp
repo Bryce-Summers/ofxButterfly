@@ -308,16 +308,35 @@ void ofxButterfly::fixMesh(ofMesh &mesh, ofMesh &subdivided_mesh)
     
     
     // --  handle texture coordinates.
-    // handle texture coordinates.
-    ofVec2f * sub_textureCoords = subdivided_mesh.getTexCoordsPointer();
+
     int original_texture_num = mesh.getNumTexCoords();
+    
+    // Do nothing if the user has not defined any texture coordinates.
+    if(original_texture_num == 0)
+    {
+        return;
+    }
+    
+    // Make sure we have a texture coordinate for every vertice in the mesh.
+    
+    int current_subdivided_texture_num = subdivided_mesh.getNumTexCoords();
+    int full_subdivided_texture_num = subdivided_mesh.getNumVertices();
+    
+    for(int i = current_subdivided_texture_num; i < full_subdivided_texture_num; i++)
+    {
+        subdivided_mesh.addTexCoord(subdivided_mesh.getVertex(i));
+    }
+ 
+    // Map all original texture coordinates to the subdivided mesh.
+    
+    ofVec2f * sub_textureCoords = subdivided_mesh.getTexCoordsPointer();
     for(int i = 0; i < original_texture_num; i++)
     {
         sub_textureCoords[i] = mesh.getTexCoord(i);
     }
     
     // Derive the rest of the texture coordinates.
-    deriveTextureVertices(original_vert_num, sub_textureCoords, subdivided_mesh.getNumVertices());
+    deriveTextureVertices(original_vert_num, sub_textureCoords, full_subdivided_texture_num);
 }
 
 // -- Private work functions.
