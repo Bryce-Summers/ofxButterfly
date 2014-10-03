@@ -245,6 +245,14 @@ void ofxButterfly::topology_start(ofMesh &mesh)
     current_WE = toWingedEdge(mesh, map_vertice_index, map_index_vertice);
 }
 
+void ofxButterfly::topology_subdivide_boundary(int iterations)
+{
+    for(int i = 0; i < iterations; i++)
+    {
+        topology_subdivide_boundary();
+    }
+}
+
 void ofxButterfly::topology_subdivide_boundary()
 {
     std::map<gfx::Vertex, std::vector<gfx::Vertex> > info;

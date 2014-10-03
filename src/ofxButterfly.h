@@ -77,6 +77,7 @@ public:
      * mesh will not be mutated.
      * the returned mesh is a boundary subdivided version of mesh.
      */
+    void topology_subdivide_boundary(int iterations);
     void topology_subdivide_boundary();
     /*
     void topology_subdivide_pascal();
