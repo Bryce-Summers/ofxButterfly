@@ -108,6 +108,10 @@ ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> &index_map,
     }
     
     // Compute the Triangles.
+    
+    // Naive n^2 mesh creation algorithm that preserves the ordering of the triangles such that those with lower indice
+    // vertices appear below those with higher indice vertices on the screen.
+    for(int i = 0; i < len; i++)
     for(std::map<gfx::Face, std::set<gfx::Edge> >::iterator iter = faceMap.begin(); iter != faceMap.end(); ++iter)
     {
         gfx::Face f = iter -> first;
@@ -133,10 +137,16 @@ ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> &index_map,
         i2 = index_map.find(v2) -> second;
         i3 = index_map.find(v3) -> second;
         
-        // Insert the indices to specify a triangle in the ofMesh.
-        output.ofMesh::addIndex(i1);
-        output.ofMesh::addIndex(i2);
-        output.ofMesh::addIndex(i3);
+        int min = MIN(MIN(i1, i2), i3);
+        
+        if(i == min)
+        {
+            // Insert the indices to specify a triangle in the ofMesh.
+            output.addIndex(i1);
+            output.addIndex(i2);
+            output.addIndex(i3);
+        }
+
     }
     
     return output;
