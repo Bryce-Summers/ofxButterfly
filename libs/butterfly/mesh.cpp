@@ -646,7 +646,10 @@ namespace gfx
      *
      *
      */
-     
+    
+    
+    
+    
      
     // Subdivides all edges on the boundary. Populates information about the vertices that were subdivided.
     WingedEdge WingedEdge::BoundaryTrianglularSubdivide(std::map<Vertex, std::vector<Vertex> > &derivations)
@@ -864,10 +867,276 @@ namespace gfx
     }
     
     
+    // -- Public interface wrapper functions.
+    WingedEdge WingedEdge::ButterflySubdivide(std::map<Vertex, std::vector<Vertex> > &derivations)
+    {
+        Subdivide(false, false, derivations);
+    }
     
+    WingedEdge WingedEdge::LinearSubdivide(std::map<Vertex, std::vector<Vertex> > &derivations)
+    {
+        Subdivide(true, false, derivations);
+    }
     
+    WingedEdge WingedEdge::SillyPascalSubdivide(std::map<Vertex, std::vector<Vertex> > &derivations)
+    {
+        Subdivide(false, true, derivations);
+    }
+
+    // Private work function.
+    WingedEdge WingedEdge::Subdivide(bool linear, bool pascal, std::map<Vertex, std::vector<Vertex> > &derivations)
+    {
+        WingedEdge mesh;
+        std::set<Edge> edges;
+        
+        for (auto face = faceList.begin(); face != faceList.end(); ++face)
+        {
+            
+            /* massive assumption that there is 3 edges in our face */
+            Edge e1 = face -> first.E1();
+            Edge e2 = face -> first.E2();
+            Edge e3 = face -> first.E3();
+            
+            /* might need to verify this doesn't pick duplicates */
+            Vertex v1 = e1.V1();
+            Vertex v2 = e1.V2();
+            Vertex v3 = (e2.V1() == v1 || e2.V1() == v2) ? e2.V2() : e2.V1();
+            
+            /* guarantee we know what e2 is */
+            if (v1 == e3.V1() || v1 == e3.V2())
+            {
+                Edge tmp = e3;
+                e3 = e2;
+                e2 = tmp;
+            }
+            
+            int f1, f2, f3;
+            f1 = getNumAdjacentFaces(e1);
+            f2 = getNumAdjacentFaces(e2);
+            f3 = getNumAdjacentFaces(e3);
+            
+            // Do not subdivide and do not incorporate non boundary faces.
+            // This is the part the creates the pascal behavior,
+            if(pascal && f1 == 2 && f2 == 2 && f3 == 2)
+            {
+                continue;
+            }
+            
+            bool success = true;
+            Vertex v4 = SubdivideEdge(face->first, e1, GetAdjacentVertex(face->first, e1, success), linear, derivations);
+            Vertex v5 = SubdivideEdge(face->first, e2, GetAdjacentVertex(face->first, e2, success), linear, derivations);
+            Vertex v6 = SubdivideEdge(face->first, e3, GetAdjacentVertex(face->first, e3, success), linear, derivations);
+            
+            // A half hearted success check.
+            if(!success)
+            {
+                throw RuntimeError("WindgedEdge Error: Something is wrong with the mesh to be subdivided.");
+            }
+            
+            {
+                e1 = mesh.AddEdge(v1, v4);
+                e2 = mesh.AddEdge(v1, v5);
+                e3 = mesh.AddEdge(v5, v4);
+                mesh.AddFace(e1, e2, e3);
+            }
+            
+            {
+                e1 = mesh.AddEdge(v4, v2);
+                e2 = mesh.AddEdge(v4, v6);
+                e3 = mesh.AddEdge(v6, v2);
+                mesh.AddFace(e1, e2, e3);
+            }
+            
+            {
+                e1 = mesh.AddEdge(v5, v6);
+                e2 = mesh.AddEdge(v5, v3);
+                e3 = mesh.AddEdge(v3, v6);
+                mesh.AddFace(e1, e2, e3);
+            }
+            
+            {
+                e1 = mesh.AddEdge(v6, v5);
+                e2 = mesh.AddEdge(v6, v4);
+                e3 = mesh.AddEdge(v4, v5);
+                mesh.AddFace(e1, e2, e3);
+            }
+            
+        }
+        
+        /*
+         std::cout << "Subdivide info: " << std::endl;
+         std::cout << "VertexList: " << mesh.NumVertices() << std::endl;
+         std::cout << "EdgeList: " << mesh.NumEdges() << std::endl;
+         std::cout << "FaceList: " << mesh.NumFaces() << std::endl;
+         */
+        
+        return mesh;
+    }
+
     
-    
+    /* This functions computes the new butterfly vertices based on the points in the stencil of the given edge.
+     *FIXME : http://mrl.nyu.edu/~dzorin/papers/zorin1996ism.pdf Page 3.
+     * The special internal cases still need to be implemented.
+     *
+     * Only the degree 6 vertice cases and boundary cases have been implemented for butterfly.
+     *
+     * FIXME : add a type variable to determine what type of interpolation should be used for the edges.
+     *         Currently it always uses the butterfly scheme.
+     *
+     * REQUIRES : e is in f1. b1 is in f1. b1 is not in e.
+     *
+     */
+    Vertex WingedEdge::SubdivideEdge(const Face& f1, Edge& e, Vertex b1, bool linear,
+                                     std::map<Vertex, std::vector<Vertex> > &derivations)
+    {
+        
+        // Initialize the derivation structure.
+        std::vector<Vertex> derive_indices;
+        
+        // Find 'a' points.
+        Vertex a1 = e.V1();
+        Vertex a2 = e.V2();
+        
+        // Add 'a' points to the derivation vector.
+        derive_indices.push_back(a1);
+        derive_indices.push_back(a2);
+        
+        
+        /* get our a midpoint */
+        Vertex v;
+        v = a1 / 2.0;
+        v = v + (a2 / 2.0);
+        
+        
+        if(linear)
+        {
+            derivations[v] = derive_indices;
+            return v;
+        }
+        
+        // Flag for whether we are in theboundary case or not.
+        bool boundary = false;
+        
+        do
+        {
+            
+            bool success = true;
+            
+            Face f2 = GetAdjacentFace(f1, e, success);
+            
+            if(!success)
+            {
+                boundary = true;
+                break;
+            }
+            
+            /* get our opposing face's b point */
+            Vertex b2 = GetAdjacentVertex(f2, e, success);
+            
+           
+            if(!success)
+            {
+                boundary = true;
+                break;
+            }
+
+          
+            v = v + (b1/8.0);
+            v = v + (b2/8.0);
+            
+            // Add 'b' points to the derivation vector.
+            derive_indices.push_back(b1);
+            derive_indices.push_back(b2);
+            
+            
+            /* time to get our c points */
+            std::set<Edge> edges;
+            edges.insert(f1.E1());
+            edges.insert(f1.E2());
+            edges.insert(f1.E3());
+            for (auto edge = edges.begin(); edge != edges.end(); ++edge)
+            {
+                if (*edge != e)
+                {
+                    Vertex c = GetAdjacentFaceVertex(f1, *edge, success);
+                    v = v - (c/16.0);
+                    
+                    if(derive_indices.size() < 8)
+                    {
+                        derive_indices.push_back(c);
+                    }
+                    
+                    if(!success)
+                    {
+                        boundary = true;
+                        break;
+                    }
+                }
+            }
+            
+            edges.erase(edges.begin(), edges.end());
+            edges.insert(f2.E1());
+            edges.insert(f2.E2());
+            edges.insert(f2.E3());
+            for (auto edge = edges.begin(); edge != edges.end(); ++edge)
+            {
+                if (*edge != e)
+                {
+                    Vertex c = GetAdjacentFaceVertex(f2, *edge, success);
+                    
+                    v = v - (c/16.0);
+                    
+                    if(derive_indices.size() < 8)
+                    {
+                        derive_indices.push_back(c);
+                    }
+                    
+                    if(!success)
+                    {
+                        boundary = true;
+                        break;
+                    }
+                }
+            }
+            
+        }
+        while(false);
+        
+        
+        if(boundary)
+        {
+            /*
+             * Proceed with boundary case.
+             */
+            
+            // Extract the 4 vertices.
+            Vertex v1, v2, v3, v4;
+            v1 = e.V1();
+            v2 = e.V2();
+            v3 = getOtherBoundaryVertice(v1, e);
+            v4 = getOtherBoundaryVertice(v2, e);
+            
+            // For the boundary case, we will will ignore the derive_indices vector,
+            // and just compute a new vector with the 4 indices.
+            std::vector<Vertex> boundary_indices;
+            boundary_indices.push_back(v1);
+            boundary_indices.push_back(v2);
+            boundary_indices.push_back(v3);
+            boundary_indices.push_back(v4);
+            
+            Vertex output = (v1*9 + v2*9 - v3 - v4)/16.0;
+            
+            derivations[output] = boundary_indices;
+            
+            return output;
+        }
+        
+        
+        derivations[v] = derive_indices;
+        
+        return v;
+    }
+
     
     
     /* end */

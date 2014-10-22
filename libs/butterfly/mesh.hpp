@@ -64,6 +64,7 @@ public:
     // if max_len > 0 this will only subdivide edges of length greater than min_len.
     WingedEdge BoundaryTrianglularSubdivide(float min_len = -1);
     
+    
     // Subdivides exterior faces, deletes interior vertices.
     // This is not the most serious of subdivision schemes.
     WingedEdge SillyPascalSubdivide();
@@ -75,7 +76,9 @@ public:
      * Special Derivation capable routinues.
      */
     WingedEdge BoundaryTrianglularSubdivide(std::map<Vertex, std::vector<Vertex> > &derivations);
-    
+    WingedEdge ButterflySubdivide(std::map<Vertex, std::vector<Vertex> > &derivations);
+    WingedEdge LinearSubdivide(std::map<Vertex, std::vector<Vertex> > &derivations);
+    WingedEdge SillyPascalSubdivide(std::map<Vertex, std::vector<Vertex> > &derivations);
     
 private:
 
@@ -107,11 +110,14 @@ private:
 
     
     /*
-     * Special Derivation capable routines.
+     * Special Derivation capable routine helper functions.
      */
     // Computes interpolated vertices.
     Vertex SubdivideBoundaryEdge(Edge& e, std::map<Vertex, std::vector<Vertex> > &derivations);
     
+    WingedEdge Subdivide(bool linear, bool pascal, std::map<Vertex, std::vector<Vertex> > &derivations);
+    Vertex     SubdivideEdge(const Face& f1, Edge& e, Vertex b1, bool linear,
+                             std::map<Vertex, std::vector<Vertex> > &derivations);
 };
 
 /* end */

@@ -107,11 +107,22 @@ ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> &index_map,
         len++;
     }
     
-    // Compute the Triangles.
     
-    // Naive n^2 mesh creation algorithm that preserves the ordering of the triangles such that those with lower indice
-    // vertices appear below those with higher indice vertices on the screen.
+    // We are going to sort the triangles by lowest indice in linear time.
+    // This allows the triangles associated with lower indices to be added to the mesh before those with higher indices,
+    // which allows for the arbitrary depth ordering of the triangles to more closely match the mesh builder's artistic
+    // intent.
+    
+    // -- initialize the triangle sorting data structure.
+    std::map<int, std::vector<std::vector<int> > > triangles;
+    
     for(int i = 0; i < len; i++)
+    {
+        std::vector< std::vector<int> > vec;
+        triangles[i] = vec;
+    }
+    
+    // Add each triangle to the structure.
     for(std::map<gfx::Face, std::set<gfx::Edge> >::iterator iter = faceMap.begin(); iter != faceMap.end(); ++iter)
     {
         gfx::Face f = iter -> first;
@@ -139,14 +150,25 @@ ofMesh fromWingedEdge(gfx::WingedEdge WE, std::map<gfx::Vertex, int> &index_map,
         
         int min = MIN(MIN(i1, i2), i3);
         
-        if(i == min)
+        std::vector<int> indices;
+        indices.push_back(i1);
+        indices.push_back(i2);
+        indices.push_back(i3);
+        
+        triangles[min].push_back(indices);
+    }
+    
+    // Using the sorting structure,
+    // Add all of the triangles to the output mesh in sorted order by minimum index and triangle order.
+    for(int i = 0; i < len; i++)
+    {
+        std::vector< std::vector<int> > vec_list = triangles[i];
+        for(auto iter = vec_list.begin(); iter != vec_list.end(); ++iter)
         {
-            // Insert the indices to specify a triangle in the ofMesh.
-            output.addIndex(i1);
-            output.addIndex(i2);
-            output.addIndex(i3);
+            output.addIndex((*iter)[0]);
+            output.addIndex((*iter)[1]);
+            output.addIndex((*iter)[2]);
         }
-
     }
     
     return output;
@@ -255,20 +277,66 @@ void ofxButterfly::topology_start(ofMesh &mesh)
     current_WE = toWingedEdge(mesh, map_vertice_index, map_index_vertice);
 }
 
+/*
+ * Fast topology cached subdivision routines.
+ *
+ */
+
+
 void ofxButterfly::topology_subdivide_boundary(int iterations)
 {
     for(int i = 0; i < iterations; i++)
     {
-        topology_subdivide_boundary();
+        topology_subdivide(BOUNDARY);
     }
 }
 
-void ofxButterfly::topology_subdivide_boundary()
+
+void ofxButterfly::topology_subdivide_pascal(int iterations)
+{
+    for(int i = 0; i < iterations; i++)
+    {
+        topology_subdivide(PASCAL);
+    }
+}
+
+void ofxButterfly::topology_subdivide_linear(int iterations)
+{
+    for(int i = 0; i < iterations; i++)
+    {
+        topology_subdivide(LINEAR);
+    }
+}
+
+void ofxButterfly::topology_subdivide_butterfly(int iterations)
+{
+    for(int i = 0; i < iterations; i++)
+    {
+        topology_subdivide(BUTTERFLY);
+    }
+}
+
+// Private main work routine for caching derivation information.
+void ofxButterfly::topology_subdivide(subdivision_type type)
 {
     std::map<gfx::Vertex, std::vector<gfx::Vertex> > info;
     
     // -- Subdivide every boundary vertice.
-    current_WE = current_WE.BoundaryTrianglularSubdivide(info);
+    switch(type)
+    {
+        case BUTTERFLY:
+            current_WE = current_WE.ButterflySubdivide(info);
+            break;
+        case BOUNDARY:
+            current_WE = current_WE.BoundaryTrianglularSubdivide(info);
+            break;
+        case PASCAL:
+            current_WE = current_WE.SillyPascalSubdivide(info);
+            break;
+        case LINEAR:
+            current_WE = current_WE.LinearSubdivide(info);
+            break;
+    }
     
     // Update the transformation.
     int next_index = transformation.size();

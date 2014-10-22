@@ -77,13 +77,11 @@ public:
      * mesh will not be mutated.
      * the returned mesh is a boundary subdivided version of mesh.
      */
-    void topology_subdivide_boundary(int iterations);
-    void topology_subdivide_boundary();
-    /*
-    void topology_subdivide_pascal();
-    void topology_subdivide_linear();
-    void topology_subdivide_butterfly();
-    */
+    void topology_subdivide_boundary(int iterations = 1);
+    void topology_subdivide_pascal(int iterations = 1);
+    void topology_subdivide_linear(int iterations = 1);
+    void topology_subdivide_butterfly(int iterations = 1);
+ 
     
     // Returns the mesh that is the result of all of the topology_subdivide_ calls.
     ofMesh topology_end();
@@ -123,6 +121,8 @@ private:
     // An mapping that maps indices in a subdivided mesh to the indices in a defored mesh needed to derive its position.
     std::map<int, std::vector<int> > transformation;
     
+    
+    void topology_subdivide(subdivision_type type);
     
 };
 
