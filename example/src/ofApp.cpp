@@ -7,14 +7,17 @@ void ofApp::setup()
     mesh.load("triangle.ply");
     
     butterfly.topology_start(mesh);
-
+        
     butterfly.topology_subdivide_butterfly();
+    
+    /*
     butterfly.topology_subdivide_linear();
     butterfly.topology_subdivide_pascal();
     butterfly.topology_subdivide_boundary();
     butterfly.topology_subdivide_butterfly();
     butterfly.topology_subdivide_boundary();
     butterfly.topology_subdivide_boundary();
+    */
     
     subdivided = butterfly.topology_end();
     
