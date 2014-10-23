@@ -6,7 +6,7 @@ Butterfly Subdivision wrapper library for Open Frameworks.
 Authors: Bryce Summers, Kyle McDonald
 
 Purpose: This wrapper library, wraps the butterfly subdivision implementation found here: https://github.com/jawr/cpp-butterfly-subdivision, for use with subdividing Open Frameworks OfMesh meshes.
-
+There were also extensive modifications and improvments to the original library.
 
 This Wrapper library was written under the auspices of the Studio for Creative Inquiry at Carnegie Mellon University:
 http://studioforcreativeinquiry.org/
