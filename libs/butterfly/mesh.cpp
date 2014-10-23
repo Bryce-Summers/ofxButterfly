@@ -870,17 +870,17 @@ namespace gfx
     // -- Public interface wrapper functions.
     WingedEdge WingedEdge::ButterflySubdivide(std::map<Vertex, std::vector<Vertex> > &derivations)
     {
-        Subdivide(false, false, derivations);
+        return Subdivide(false, false, derivations);
     }
     
     WingedEdge WingedEdge::LinearSubdivide(std::map<Vertex, std::vector<Vertex> > &derivations)
     {
-        Subdivide(true, false, derivations);
+        return Subdivide(true, false, derivations);
     }
     
     WingedEdge WingedEdge::SillyPascalSubdivide(std::map<Vertex, std::vector<Vertex> > &derivations)
     {
-        Subdivide(false, true, derivations);
+        return Subdivide(false, true, derivations);
     }
 
     // Private work function.

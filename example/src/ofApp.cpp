@@ -3,14 +3,19 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-    mesh.load("hand151.ply");
+    //mesh.load("hand151.ply");
+    mesh.load("triangle.ply");
     
     butterfly.topology_start(mesh);
 
-    for(int i = 0; i < 5; i++)
-    {
-        butterfly.topology_subdivide_boundary();
-    }
+    butterfly.topology_subdivide_butterfly();
+    butterfly.topology_subdivide_linear();
+    butterfly.topology_subdivide_pascal();
+    butterfly.topology_subdivide_boundary();
+    butterfly.topology_subdivide_butterfly();
+    butterfly.topology_subdivide_boundary();
+    butterfly.topology_subdivide_boundary();
+    
     subdivided = butterfly.topology_end();
     
 }
@@ -34,7 +39,7 @@ void ofApp::draw()
     ofSetColor(ofColor::white);
     subdivided.drawWireframe();
     
-    int x = 700;
+    int x = 650;
     ofDrawBitmapString("Press 'r' to reset the mesh!",    x, 200);
     ofDrawBitmapString("'b' = Butterfly subdivide",     x, 250);
     ofDrawBitmapString("'l' = linear subdivide",        x, 300);
