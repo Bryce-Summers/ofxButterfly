@@ -22,6 +22,7 @@ Cababilities
 ===
 
 <B>Example Input</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/_Input%20Triangle.png "Input Triangle")
 
 
 <B>Butterfly Subdivision</B>
