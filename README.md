@@ -25,9 +25,54 @@ Cababilities
 ![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/_Input%20Triangle.png "Input Triangle")
 
 
-<B>Butterfly Subdivision</B>
+<B>Butterfly Subdivision 1</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/1%20butterfly.png "1 Butterfly Subdivision")
+
+<B>Butterfly Subdivision 2</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/2%20butterfly.png "2 Butterfly Subdivision")
+
+<B>Butterfly Subdivision 3</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/3%20butterfly.png "3 Butterfly Subdivision")
+
+<B>Butterfly Subdivision 4</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/4%20butterfly.png "4 Butterfly Subdivision")
+
+<B>Boundary Subdivision 1</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/1%20boundary.png "1 Boundary Subdivision")
+
+<B>Boundary Subdivision 2</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/2%20boundary.png "2 Boundary Subdivision")
+
+<B>Boundary Subdivision 3</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/3%20boundary.png "3 Boundary Subdivision")
+
+<B>Boundary Subdivision 4</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/4%20boundary.png "4 Boundary Subdivision")
+
+<B>Linear Subdivision 1</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/1%20linear.png "1 Linear Subdivision")
+
+<B>Linear Subdivision 2</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/2%20linear.png "2 Linear Subdivision")
+
+<B>Linear Subdivision 3</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/3%20linear.png "3 Linear Subdivision")
+
+<B>Linear Subdivision 4</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/4%20linear.png "4 Linear Subdivision")
 
 
+<B>Pascal Subdivision 1</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/1%20pascal.png "1 Silly Pascal Subdivision")
+
+<B>Pascal Subdivision 2</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/2%20pascal.png "2 Silly Pascal Subdivision")
+
+<B>Pascal Subdivision 3</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/3%20pascal.png "3 Silly Pascal Subdivision")
+
+<B>Pascal Subdivision 4</B>
+![alt text](https://github.com/Bryce-Summers/ofxButterfly/blob/master/Images/4%20pascal.png "4 Silly Pascal Subdivision")
 
 Usage
 =====
