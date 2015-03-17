@@ -127,7 +127,8 @@ Usage
     butterfly.subdivideButterfly(5);// 5 subdivisions.
     butterfly.subdivideLinear(-5);  // 0 subdivisions.
     butterfly.subdividePascal(3);   // 3 subdivisions.
-    /* 4 boundary subdivisions that will stop subdividing when the new 	 * points are closer than 1.3 pixels apart. */
+    /* 4 boundary subdivisions that will stop subdividing when the new
+     * points are closer than 1.3 pixels apart. */
     butterfly.subdivideBoundary(4, 1.3);
     
     // Finish the batch subdivision.
