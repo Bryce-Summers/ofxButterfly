@@ -209,4 +209,6 @@ Golan Levin for leading the project that motivated the creation of this Wrapper 
 
 Note : Watch out with the boundary subdivision scheme. If used excessivly, some numerical errors will produce undesired results.
 
-The butterfly subdivision does not properly handle all special interior cases.
+Warning:
+--------
+The butterfly subdivision does not properly handle all special interior cases. Let the author know if you would be interested in the special cases being handled to allow for extra fairness properties in the algorithm.
