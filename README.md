@@ -212,3 +212,14 @@ Note : Watch out with the boundary subdivision scheme. If used excessivly, some 
 Warning:
 --------
 The butterfly subdivision does not properly handle all special interior cases. Let the author know if you would be interested in the special cases being handled to allow for extra fairness properties in the algorithm.
+
+Iteresting Mathematic Note:
+------------
+
+To subdive a curve defined by a list of points, simply split every edge in two with the point defined by:
+
+<p align="center">
+-A/16 + 9B/16 + 9C/16 - D/16
+</p>
+
+where A, B, C, and D are the points in order on the entire curve, where the subdivision edge is BC.
