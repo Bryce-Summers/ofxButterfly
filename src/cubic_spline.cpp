@@ -15,16 +15,17 @@
 // p1 and p2 are control points, t1 and t2 are tangant vectors that are desired at the two control points.
 cubic_spline::cubic_spline(ofVec3f p1, ofVec3f t1, ofVec3f p2, ofVec3f t2)
 {
-	/*
-	 * A =  2*p1 - 2*p2 + t1 + t2;
-	 * B = -3*p1 + 3*p2 - t1 - 2*t2
-	 * C = t2;
-	 * D = p1;
-	 */
+
+        /*
+         * A =  2*p1 - 2*p2 + t1 + t2;
+         * B = -3*p1 + 3*p2 - 2*t1 - t2
+         * C = t1;
+         * D = p1;
+         */
 		
 	A = (2*p1)  - (2*p2) + t1 + t2;
-	B = (-3*p1) + (3*p2) - t1 - (2*t2);
-	C = t2;
+	B = (-3*p1) + (3*p2) - (2*t1) - t2;
+	C = t1;
 	D = p1;
 }
     
